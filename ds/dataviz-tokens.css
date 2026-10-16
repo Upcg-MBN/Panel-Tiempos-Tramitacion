@@ -1,0 +1,73 @@
+/* Estándar de visualización de datos — Ministerio de Bienes Nacionales
+   =====================================================================
+   Mismo orden de series que `minbienes-theme.json`, para que un gráfico en
+   HTML y el mismo gráfico en Power BI salgan idénticos.
+
+   Importar DESPUÉS de `styles.css` del sistema de diseño: redefine --chart-*
+   con el orden validado, sin inventar colores nuevos.
+
+   Los ocho colores de serie salen de la paleta cualitativa institucional
+   (`--visualizaci-ndata-cualitativa-graph-*`); solo cambia el ORDEN, elegido
+   para que cada prefijo de 2 a 8 series pase las seis comprobaciones de
+   contraste y separación (incluida visión con daltonismo). */
+
+:root {
+  /* ---- Series categóricas. Se asignan en orden fijo, nunca se ciclan. ---- */
+  --chart-1: #6929c4; /* púrpura   — cualitativa graph-02 */
+  --chart-2: #009d9a; /* teal      — cualitativa graph-04 */
+  --chart-3: #4a62d1; /* azul      — cualitativa graph-11 */
+  --chart-4: #d3354f; /* rojo osc. — cualitativa graph-06 */
+  --chart-5: #a56eff; /* lila      — cualitativa graph-12 */
+  --chart-6: #198038; /* verde     — cualitativa graph-03 */
+  --chart-7: #dd45df; /* magenta   — cualitativa graph-13 */
+  --chart-8: #fa4d56; /* rojo      — cualitativa graph-01 */
+
+  /* ---- Rampa secuencial (magnitud). Un solo tono, claro → oscuro. ---- */
+  --chart-seq-1: #edf5ff;
+  --chart-seq-2: #d0e2ff;
+  --chart-seq-3: #a6c8ff;
+  --chart-seq-4: #78a9ff;
+  --chart-seq-5: #4589ff;
+  --chart-seq-6: #0f62fe;
+  --chart-seq-7: #0043ce;
+  --chart-seq-8: #002d9c;
+  --chart-seq-9: #001d6c;
+  --chart-seq-10: #001141;
+
+  /* ---- Rampa divergente (polaridad). Frío → neutro → cálido. ---- */
+  --chart-div-1: #294090;
+  --chart-div-2: #3a6eae;
+  --chart-div-3: #5d9bc7;
+  --chart-div-4: #88c3dc;
+  --chart-div-5: #b9e1ee;
+  --chart-div-6: #e8eac5; /* punto medio neutro */
+  --chart-div-7: #ffd581;
+  --chart-div-8: #ffaa5c;
+  --chart-div-9: #f97145;
+  --chart-div-10: #dc2d2a;
+  --chart-div-11: #9d0024;
+
+  /* ---- Estado. Reservados: nunca se usan como color de serie.
+         Siempre acompañados de ícono + etiqueta, nunca color solo. ---- */
+  --chart-estado-bueno: #2e7d32; /* --exito-darken-3 */
+  --chart-estado-alerta: #d47a10; /* ámbar: separable del rojo, ver ESTANDAR */
+  --chart-estado-critico: #cd1e2c; /* --error-darken-3 */
+  --chart-estado-nulo: #e6e6e6;
+
+  /* ---- Cromo del gráfico: retrocede, nunca compite con los datos. ---- */
+  --chart-superficie: #ffffff;
+  --chart-pagina: #f2f2f2;
+  --chart-grilla: #e6e6e6;
+  --chart-eje-texto: #4d4d4d;
+  --chart-titulo: #373737;
+}
+
+/* Los pasteles de la paleta institucional (graph-07, 08, 10, 14…18) y el
+   azul marino graph-05 NO son colores de serie: bajo 3:1 sobre blanco, o
+   fuera de la banda de luminosidad. Se reservan para rellenos de fondo,
+   bandas de referencia y estados suaves. */
+:root {
+  --chart-relleno-suave-1: #d0e2ff;
+  --chart-relleno-suave-2: #fefacd;
+  --chart-relleno-suave-3: #bdfdc8;
+}

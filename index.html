@@ -1,0 +1,1606 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tiempos de tramitación · Arriendo · Ministerio de Bienes Nacionales</title>
+<link rel="stylesheet" href="ds/styles.css">
+<link rel="stylesheet" href="ds/dataviz-tokens.css">
+<style>
+/* Mismo sistema que el panel SUBSE (_referencia/index_subse.html): franja
+   azul con filete rojo, menú de páginas, filtros como chips, tarjetas blancas.
+   Diferencia deliberada: tarjeta con borde de 1 px y sin sombra, como pide el
+   estándar de visualización §5. Todo el color va por var(--token). */
+*{box-sizing:border-box}
+html,body{height:100%}
+/* Densidad adaptativa, igual que SUBSE: base de 16 px a 14 px en laptop. */
+html{font-size:16px}
+@media (min-width:1024px){html{font-size:clamp(14px, min(9.077px + .3846vw, 7.667px + .8333vh), 16px)}}
+body{margin:0; background:var(--gris-5); color:var(--negro-text); font-family:var(--font-sans); font-size:1rem; line-height:1.4}
+:focus-visible{outline:none; box-shadow:var(--focus-ring)}
+::selection{background:var(--primario-base); color:var(--blanco-base)}
+*{scrollbar-width:thin; scrollbar-color:var(--gris-20) transparent}
+::-webkit-scrollbar{width:0.625rem; height:0.625rem}
+::-webkit-scrollbar-thumb{background:var(--gris-20); border-radius:var(--radius-pill)}
+::-webkit-scrollbar-track{background:transparent}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms !important; animation-duration:.01ms !important}}
+button{font:inherit; color:inherit}
+[hidden]{display:none !important}
+/* Sin animación al cargar: el menú arranca ya en su ancho. */
+.inicio .menu{transition:none}
+.ico{width:1.25rem; height:1.25rem; flex:none; fill:currentColor}
+.ico--22{width:1.375rem; height:1.375rem}
+.ico--24{width:1.5rem; height:1.5rem}
+.ico--18{width:1.125rem; height:1.125rem}
+.ico--16{width:1rem; height:1rem}
+.num{font-variant-numeric:tabular-nums}
+
+.app{display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:auto 0.25rem 1fr 0.75rem; min-height:100vh}
+
+/* ---------- Franja institucional ---------- */
+.cab{background:var(--primario-base); color:var(--blanco-base); min-height:6.75rem;
+  display:flex; align-items:center; gap:2rem; padding:1rem 3rem}
+.cab img{height:4.25rem; display:block}
+.cab-txt{display:flex; flex-direction:column; gap:2px; margin-left:1rem; min-width:0}
+.cab h1{margin:0; font-family:var(--font-brand); font-weight:700; font-size:2rem; line-height:1.15; letter-spacing:.01em}
+.cab p{margin:0; font-size:1rem; color:rgba(255,255,255,.9)}
+.cab-der{margin-left:auto; display:flex; align-items:center; gap:1.5rem}
+.sello{display:flex; align-items:center; gap:0.5rem; font-size:0.9375rem; color:rgba(255,255,255,.9); white-space:nowrap}
+.btn-borde{display:flex; align-items:center; gap:0.5rem; padding:0.625rem 1rem; border:1px solid rgba(255,255,255,.55);
+  border-radius:var(--radius-s); background:transparent; color:var(--blanco-base); font-size:0.9375rem; cursor:pointer;
+  transition:background var(--duration-base) var(--ease-standard)}
+.btn-borde:hover{background:rgba(255,255,255,.12)}
+.filete{background:var(--accent-base)}
+.barra-pie{background:var(--primario-darken-2)}
+
+/* ---------- Menú de páginas ---------- */
+.cuerpo{display:flex; min-height:0}
+.menu{width:17.5rem; flex:none; background:var(--blanco-base); border-right:1px solid var(--gris-10);
+  display:flex; flex-direction:column; padding:1.5rem 0; overflow:hidden;
+  transition:width var(--duration-base) var(--ease-standard)}
+.app.cerrado .menu{width:4.75rem}
+.app.cerrado .txt{display:none}
+.menu-cab{display:flex; align-items:center; gap:0.5rem; padding:0 1.25rem 0.75rem; min-height:2.75rem}
+.menu-rot{font-size:max(12px,0.75rem); font-weight:700; letter-spacing:.08em; color:var(--gris-60)}
+.menu-alt{margin-left:auto; width:2rem; height:2rem; border:0; border-radius:var(--radius-s); background:none;
+  color:var(--primario-darken-1); display:grid; place-items:center; cursor:pointer; flex:none}
+.menu-alt:hover{background:var(--secundario-base)}
+.pag{display:flex; align-items:center; gap:0.875rem; width:100%; padding:0.875rem 1.375rem; border:0; border-left:0.25rem solid transparent;
+  background:none; font-size:1.0625rem; text-align:left; white-space:nowrap; cursor:pointer}
+.pag:hover{background:var(--gris-5)}
+.pag[aria-current="page"]{background:var(--secundario-base); color:var(--primario-darken-1);
+  border-left-color:var(--primario-darken-1); font-weight:500}
+.menu-pie{margin-top:auto; padding:1.5rem 1.375rem 0; border-top:1px solid var(--gris-10)}
+.menu-pie button{display:flex; align-items:center; gap:0.875rem; padding:0.25rem 0; border:0; background:none;
+  font-size:0.9375rem; color:var(--gris-60); cursor:pointer; white-space:nowrap}
+.menu-pie button:hover{color:var(--primario-darken-1)}
+
+/* ---------- Contenido y filtros ---------- */
+.contenido{flex:1; min-width:0; padding:2rem; display:flex; flex-direction:column; gap:1.5rem}
+.filtros{display:flex; align-items:center; gap:0.75rem 1rem; flex-wrap:wrap}
+.chip{position:relative; display:flex; align-items:center; gap:0.625rem; height:3rem; padding:0 1rem; flex:1 0 14rem; max-width:16rem;
+  background:var(--blanco-base); border:1px solid var(--gris-20); border-radius:var(--radius-s); font-size:1rem; cursor:pointer;
+  transition:border-color var(--duration-base) var(--ease-standard)}
+.chip:hover{border-color:var(--gris-40)}
+.chip:focus-within{box-shadow:var(--focus-ring)}
+.chip select:focus-visible,.chip input:focus-visible{box-shadow:none}
+.chip > .ico:first-child{color:var(--primario-darken-1)}
+.chip-rot{white-space:nowrap}
+.chip select{appearance:none; -webkit-appearance:none; border:0; background:transparent; font:inherit; color:inherit;
+  flex:1; width:0; min-width:0; height:100%; padding:0 1.875rem 0 0; cursor:pointer; outline:none; text-overflow:ellipsis}
+.chip input[type=date]{border:0; background:transparent; font:inherit; color:inherit; flex:1; width:0; min-width:0; height:100%;
+  padding:0; outline:none; cursor:pointer; font-variant-numeric:tabular-nums}
+.chip input[type=date]::-webkit-calendar-picker-indicator{cursor:pointer; opacity:.6}
+.chip-flecha{position:absolute; right:0.75rem; pointer-events:none; color:var(--gris-50)}
+.chip--fecha{flex-basis:15.75rem; max-width:17rem}
+.chip--corto{flex-basis:13.5rem; max-width:15rem}
+.chip--atip{flex-basis:15.5rem; max-width:16.5rem}
+.chip--tramite{flex-basis:23rem; max-width:27rem}
+.chip--tramite > .ico:first-child{color:var(--primario-darken-1)}
+/* Etapa como filtro de todo el panel: aparece solo cuando se activa, con su X. */
+.chip--etapa{flex:0 1 auto; max-width:24rem; background:var(--secundario-base); border-color:var(--primario-darken-1);
+  color:var(--primario-darken-1); cursor:default}
+.chip--etapa span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.chip--etapa button{flex:none; width:2rem; height:2rem; margin-right:-0.5rem; border:0; border-radius:var(--radius-s);
+  background:none; color:inherit; display:grid; place-items:center; cursor:pointer}
+.chip--etapa button:hover{background:rgba(0,81,168,.1)}
+.chip--etapa[hidden]{display:none}
+.enlace{display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1rem; border:0; border-radius:var(--radius-s);
+  background:none; font-size:1rem; color:var(--primario-darken-1); cursor:pointer}
+.enlace:hover{color:var(--primario-darken-2); background:var(--secundario-base)}
+.estado{margin-left:auto; display:flex; align-items:center; gap:0.5rem; font-size:0.9375rem; color:var(--gris-60)}
+.estado--alerta{color:var(--error-darken-3)}
+.filtros-hoja{display:contents}
+.btn-filtros,.hoja-cab,.hoja-listo{display:none}
+
+.pagina{display:flex; flex-direction:column; gap:1.5rem}
+.pagina[hidden]{display:none}
+.tarjeta{background:var(--blanco-base); border:1px solid var(--gris-10); border-radius:var(--radius-m); padding:1.5rem; min-width:0}
+.col{display:flex; flex-direction:column; gap:1rem}
+.fila{display:flex; gap:1.5rem}
+.fila > .ancho{flex:2 1 0}
+.fila > .angosto{flex:1 1 0}
+
+/* ---------- KPI ---------- */
+.kpis{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1.5rem}
+.kpi{display:flex; flex-direction:column; gap:0.625rem}
+.kpi-rot{display:flex; align-items:center; gap:0.75rem; font-size:0.9375rem; color:var(--gris-60)}
+.kpi-rot .ico{color:var(--primario-darken-1)}
+.kpi-num{font-family:var(--font-slab); font-size:2.75rem; font-weight:700; line-height:1; color:var(--chart-titulo)}
+.kpi-num small{font-family:var(--font-sans); font-size:1rem; font-weight:500; color:var(--gris-60); margin-left:0.375rem}
+.kpi-pie{font-size:0.875rem; color:var(--gris-60)}
+
+/* ---------- Encabezado de tarjeta ---------- */
+.t-cab{display:flex; align-items:center; gap:0.5rem 1.25rem; flex-wrap:wrap}
+.t-cab h2{margin:0; font-size:1.1875rem; font-weight:500; line-height:1.3}
+.t-sub{margin:-0.5rem 0 0; font-size:0.875rem; color:var(--gris-60); max-width:75ch}
+.leyenda{display:flex; flex-wrap:wrap; gap:0.375rem 1rem; font-size:0.875rem; color:var(--gris-60)}
+.leyenda span{display:flex; align-items:center; gap:0.5rem}
+.k-caja{width:0.75rem; height:0.75rem; border-radius:2px; display:block}
+.k-linea{width:1.25rem; height:3px; border-radius:2px; display:block}
+.k-marca{width:3px; height:0.875rem; border-radius:1px; background:var(--negro-text); display:block}
+.k-guion{width:0; height:0.875rem; border-left:2px dashed var(--gris-50); display:block}
+.k-trama{width:0.875rem; height:0.875rem; border-radius:2px; display:block;
+  background:repeating-linear-gradient(135deg, var(--primario-darken-1) 0 2px, var(--blanco-base) 2px 4px)}
+.k-caja-bp{width:1.25rem; height:0.75rem; border:1.5px solid var(--primario-darken-1); background:var(--secundario-base); border-radius:2px; display:block}
+.lienzo{position:relative; height:22rem}
+.lienzo > svg{position:absolute; inset:0; display:block; overflow:visible}
+.lienzo:focus-visible{box-shadow:var(--focus-ring); border-radius:var(--radius-s)}
+.vacio{display:grid; place-items:center; min-height:6rem; height:100%; margin:0; color:var(--gris-60); text-align:center}
+.nota{display:flex; gap:0.5rem; align-items:flex-start; margin:0; font-size:0.8125rem; color:var(--gris-60); max-width:90ch}
+.nota .ico{margin-top:1px; color:var(--gris-50)}
+
+/* ---------- Recorrido: franja de etapas ----------
+   Las etapas en su orden del proceso, unidas por un conector. Cada una es
+   un botón: elegirla abre sus actividades debajo. El número va porque la
+   secuencia es la información (el orden del maestro), no decoración. */
+.etapas{display:grid; grid-template-columns:repeat(var(--n,4),minmax(0,1fr)); gap:2rem}
+.nodo{position:relative; display:flex; flex-direction:column; gap:0.75rem; padding:1.125rem 1.25rem 1.25rem; min-width:0;
+  border:1px solid var(--gris-20); border-radius:var(--radius-m); background:var(--blanco-base); text-align:left; cursor:pointer;
+  transition:border-color var(--duration-base) var(--ease-standard), background var(--duration-base) var(--ease-standard)}
+.nodo:hover{border-color:var(--gris-40)}
+/* Conector: una flecha dibujada en el hueco entre dos etapas. */
+.nodo:not(:last-child)::after{content:""; position:absolute; top:2.25rem; right:-1.3rem; width:0.625rem; height:0.625rem;
+  border-top:2px solid var(--gris-40); border-right:2px solid var(--gris-40); transform:rotate(45deg); pointer-events:none}
+.nodo:not(:last-child)::before{content:""; position:absolute; top:2.53rem; right:-1.75rem; width:1.25rem; height:2px;
+  background:var(--gris-40); pointer-events:none}
+.nodo[aria-pressed="true"]{border-color:var(--primario-darken-1); background:var(--secundario-base);
+  box-shadow:inset 0 0 0 1px var(--primario-darken-1)}
+.nodo[disabled]{cursor:default; color:var(--gris-50); background:var(--gris-5)}
+/* Sobre el relleno celeste, el texto secundario oscurece para mantener 4,5:1. */
+.nodo[aria-pressed="true"] dt,.nodo[aria-pressed="true"] .nodo-cifra span{color:var(--gris-70)}
+.nodo-cab{display:flex; align-items:flex-start; gap:0.625rem; min-height:2.75rem}
+.nodo-n{flex:none; display:grid; place-items:center; width:1.75rem; height:1.75rem; border-radius:var(--radius-pill);
+  background:var(--primario-darken-1); color:var(--blanco-base); font-size:0.875rem; font-weight:700; font-variant-numeric:tabular-nums}
+.nodo[aria-pressed="false"] .nodo-n, .nodo[disabled] .nodo-n{background:var(--secundario-base); color:var(--primario-darken-1)}
+.nodo-nom{font-weight:500; line-height:1.3; padding-top:0.125rem}
+.nodo-cifra{display:flex; align-items:baseline; gap:0.5rem}
+.nodo-cifra b{font-family:var(--font-slab); font-size:2.5rem; font-weight:700; line-height:1; color:var(--chart-titulo); font-variant-numeric:tabular-nums}
+.nodo-cifra span{font-size:0.875rem; color:var(--gris-60)}
+.nodo dl{display:grid; grid-template-columns:auto auto; justify-content:space-between; gap:0.25rem 1rem; margin:0; font-size:0.8125rem}
+.nodo dt{color:var(--gris-60)}
+.nodo dd{margin:0; text-align:right; font-variant-numeric:tabular-nums; font-weight:500}
+/* Barra de duración: largo = mediana, marca = promedio, escala común a
+   las etapas. Un solo azul: el color no codifica magnitud. */
+.medida{position:relative; height:0.75rem; background:var(--gris-5); border-radius:var(--radius-s)}
+.medida i{position:absolute; left:0; top:0; bottom:0; background:var(--primario-darken-1); border-radius:0 var(--radius-s) var(--radius-s) 0}
+.medida b{position:absolute; top:-0.1875rem; bottom:-0.1875rem; width:3px; margin-left:-1.5px; background:var(--negro-text); border-radius:1px}
+.sub-rot{margin:0.25rem 0 -0.25rem; font-size:0.9375rem; font-weight:500; color:var(--gris-70)}
+
+/* ---------- Actividades: filas con mediana y promedio ---------- */
+.acts-cab{display:flex; align-items:center; gap:0.5rem 1rem; flex-wrap:wrap}
+.acts-cab h2{margin:0; font-size:1.1875rem; font-weight:500; line-height:1.3; flex:1 1 20rem}
+.btn-sec{display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 0.875rem; border:1px solid var(--gris-20);
+  border-radius:var(--radius-s); background:var(--blanco-base); font-size:0.875rem; cursor:pointer; white-space:nowrap}
+.btn-sec:hover{background:var(--gris-5)}
+.btn-sec[aria-pressed="true"]{background:var(--primario-darken-1); border-color:var(--primario-darken-1); color:var(--blanco-base)}
+.btn-sec .ico{width:1.125rem; height:1.125rem}
+.filas{display:flex; flex-direction:column}
+.grupo-rot{margin:0.875rem 0 0.25rem; padding-bottom:0.375rem; border-bottom:1px solid var(--gris-10);
+  font-size:0.875rem; font-weight:500; color:var(--gris-70)}
+.grupo-rot:first-child{margin-top:0}
+.act{display:grid; grid-template-columns:minmax(0,19rem) minmax(0,1fr) 9.5rem; align-items:center; gap:1rem;
+  padding:0.4375rem 0.25rem; border-radius:var(--radius-s); font-size:0.875rem}
+.act:hover{background:var(--gris-5)}
+.act-nom{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.act .medida{height:0.875rem}
+.act-val{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+.act-val b{font-weight:700}
+.act-val span{color:var(--gris-60)}
+.act--fina .medida i{background:var(--gris-30)}
+
+/* Listas de barras (ranking regional): mismas filas, clic filtra. */
+.barras{display:flex; flex-direction:column; gap:2px}
+.barra-fila{display:grid; grid-template-columns:minmax(0,11rem) minmax(0,1fr) 7.5rem; align-items:center; gap:0.75rem;
+  width:100%; padding:0.375rem 0.25rem; border:0; border-radius:var(--radius-s); background:none; font-size:0.875rem; text-align:left; cursor:pointer}
+.barra-fila:hover{background:var(--gris-5)}
+.barra-fila[aria-pressed="true"]{background:var(--secundario-base)}
+.barra-nom{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.barra-fila.pocos .medida i{background:var(--gris-30)}
+.barra-fila.pocos .act-val{color:var(--gris-60)}
+.pocos-rot{display:inline-flex; align-items:center; gap:0.25rem; font-size:max(12px,0.75rem); color:var(--gris-60)}
+
+/* ---------- Tabla de datos (gemela accesible de cada gráfico) ---------- */
+.tabla summary{font-size:0.875rem; font-weight:500; color:var(--primario-darken-1); cursor:pointer; width:max-content; border-radius:var(--radius-s)}
+.tabla summary:hover{color:var(--primario-darken-2)}
+.tabla-caja{max-height:22rem; overflow:auto; margin-top:0.5rem}
+.tabla table{border-collapse:collapse; width:100%; font-size:max(12px,0.8125rem); background:var(--blanco-base)}
+.tabla thead th{position:sticky; top:0; background:var(--primario-darken-1); color:var(--blanco-base); text-align:right; padding:0; font-weight:700; white-space:nowrap}
+.tabla thead th:first-child,.tabla thead th.izq{text-align:left}
+.tabla thead th button{display:flex; align-items:center; justify-content:inherit; gap:0.25rem; width:100%; padding:0.5rem 0.75rem;
+  border:0; background:none; color:inherit; font-weight:inherit; text-align:inherit; cursor:pointer}
+.tabla thead th.izq button,.tabla thead th:first-child button{justify-content:flex-start}
+.tabla thead th:not(.izq):not(:first-child) button{justify-content:flex-end}
+.tabla thead th button:hover{background:var(--primario-darken-2)}
+.tabla thead th span.sin-orden{display:block; padding:0.5rem 0.75rem}
+.tabla td,.tabla tbody th{padding:0.375rem 0.75rem; border-bottom:1px solid var(--gris-10); text-align:right; font-variant-numeric:tabular-nums}
+.tabla tbody th,.tabla td.izq{text-align:left; font-weight:400}
+.tabla tbody tr:nth-child(even){background:var(--gris-5)}
+.stats{border-collapse:collapse; width:100%; font-size:0.9375rem}
+.stats th{text-align:left; font-weight:400; color:var(--gris-70); padding:0.5rem 0; border-bottom:1px solid var(--gris-10)}
+.stats td{text-align:right; font-variant-numeric:tabular-nums; font-weight:500; padding:0.5rem 0; border-bottom:1px solid var(--gris-10)}
+.stats tr.fuerte th,.stats tr.fuerte td{font-weight:700; color:var(--negro-text)}
+
+/* ---------- Tooltip ---------- */
+.tip{position:fixed; z-index:30; min-width:12rem; max-width:20rem; padding:0.625rem 0.75rem; background:var(--blanco-base); border-radius:var(--radius-m);
+  box-shadow:var(--elevation-03); font-size:max(12px,0.8125rem); pointer-events:none}
+.tip-tit{font-weight:500; margin-bottom:0.375rem}
+.tip-fila{display:flex; align-items:center; gap:0.5rem; line-height:1.7}
+.tip-fila b{font-weight:700; font-variant-numeric:tabular-nums; min-width:3.875rem; text-align:right}
+.tip-fila span{color:var(--gris-60)}
+.tip-k{width:0.875rem; height:3px; border-radius:2px; flex:none}
+.tip-k--caja{width:0.625rem; height:0.625rem}
+
+/* ---------- Diálogos ---------- */
+dialog{border:0; border-radius:var(--radius-m); box-shadow:var(--elevation-04); padding:0; max-width:46rem; width:calc(100% - 2rem); color:inherit}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+.dlg-cab{display:flex; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--gris-10)}
+.dlg-cab h2{margin:0; font-size:1.1875rem; font-weight:500}
+.dlg-cab button{margin-left:auto; border:0; background:none; width:2.25rem; height:2.25rem; border-radius:var(--radius-s); display:grid; place-items:center; cursor:pointer}
+.dlg-cab button:hover{background:var(--gris-5)}
+.metodo{margin:0; padding:0.5rem 1.5rem 1.5rem; max-height:70vh; overflow:auto}
+.metodo dt{font-weight:700; margin-top:1rem}
+.metodo dd{margin:0.25rem 0 0; color:var(--gris-70); font-size:0.9375rem; max-width:72ch}
+.dlg-cuerpo{padding:0.25rem 1.5rem 0.75rem}
+.dlg-nota{margin:0.75rem 0 0.25rem; font-size:0.875rem; color:var(--gris-60)}
+fieldset{border:0; margin:0.75rem 0 0; padding:0}
+legend{padding:0; margin-bottom:0.25rem; font-size:0.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--gris-60)}
+.opcion{display:flex; align-items:center; gap:0.75rem; padding:0.5rem 0.375rem; border-radius:var(--radius-s); font-size:0.9375rem; cursor:pointer}
+.opcion:hover{background:var(--gris-5)}
+.opcion input{width:1.125rem; height:1.125rem; margin:0; accent-color:var(--primario-darken-1)}
+.dlg-pie{display:flex; justify-content:flex-end; gap:0.75rem; padding:1rem 1.5rem; border-top:1px solid var(--gris-10)}
+.btn-pri{padding:0.625rem 1.25rem; border:0; border-radius:var(--radius-s); background:var(--primario-darken-1); color:var(--blanco-base);
+  font-size:0.9375rem; font-weight:500; cursor:pointer}
+.btn-pri:hover{background:var(--primario-darken-2)}
+.btn-pri:disabled{background:var(--gris-20); color:var(--gris-50); cursor:not-allowed}
+.dlg-pie .btn-sec{padding:0.625rem 1.25rem; font-size:0.9375rem}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1599px){.btn-largo{display:none}}
+/* El recorrido va de corrido, 1→2→3→4, hasta 900 px: se aprieta en vez de
+   partirse en 2×2 (en 2×2 se perdía el paso 2→3 y dejaba de leerse como ruta).
+   Bajo 900 px baja a una columna, con el conector hacia abajo. */
+@media (max-width:1280px){
+  .etapas{gap:1.5rem}
+  .nodo{padding:0.875rem 0.875rem 1rem; gap:0.625rem}
+  .nodo:not(:last-child)::after{right:-1.05rem}
+  .nodo:not(:last-child)::before{right:-1.4rem; width:1rem}
+  .nodo-cifra b{font-size:2rem}
+  .nodo dl{font-size:max(12px,0.75rem); gap:0.1875rem 0.375rem}
+  .kpis{gap:1rem}
+  .tarjeta.kpi{padding:1.125rem}
+  .kpi-num{font-size:2.25rem}
+}
+@media (max-width:899px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .etapas{grid-template-columns:minmax(0,1fr); gap:1.5rem}
+  .nodo:not(:last-child)::after{top:auto; bottom:-1.1rem; right:auto; left:1.875rem; transform:rotate(135deg)}
+  .nodo:not(:last-child)::before{top:auto; bottom:-1.5rem; right:auto; left:2.125rem; width:2px; height:1.25rem}
+}
+@media (max-width:1200px){.fila{flex-direction:column}}
+@media (max-width:760px){
+  .cab{padding:0.875rem 1rem; gap:0.5rem 0.75rem; flex-wrap:wrap; min-height:0}
+  .cab img{height:2.5rem}
+  .cab-txt{margin-left:0; flex:1 1 12rem}
+  .cab h1{font-size:1.125rem}
+  .cab p{font-size:0.8125rem}
+  .cab-der{margin-left:0; width:100%; gap:0.5rem}
+  .sello{margin-right:auto; font-size:0.8125rem; white-space:normal}
+  .btn-borde{width:2.75rem; height:2.75rem; padding:0; justify-content:center; flex:none}
+  .btn-txt{display:none}
+  .cuerpo{flex-direction:column}
+  /* Tres pestañas del mismo ancho; el nombre largo baja a dos líneas en vez de salirse. */
+  .menu{width:auto; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); padding:0; border-right:0; border-bottom:1px solid var(--gris-10)}
+  .app.cerrado .menu{width:auto}
+  .app.cerrado .txt{display:inline}
+  .menu-cab,.menu-pie{display:none}
+  .pag{justify-content:center; gap:0.5rem; padding:0.625rem 0.5rem; border-left:0; border-bottom:3px solid transparent; font-size:0.875rem;
+    white-space:normal; text-align:center; line-height:1.25}
+  .pag .ico{display:none}
+  .pag[aria-current="page"]{border-bottom-color:var(--primario-darken-1)}
+  .contenido{padding:1rem; gap:1rem}
+  .filtros{flex-wrap:nowrap; gap:0.75rem}
+  .btn-filtros{display:flex; align-items:center; gap:0.5rem; flex:none; height:2.75rem; padding:0 1rem;
+    border:1px solid var(--gris-20); border-radius:var(--radius-s); background:var(--blanco-base);
+    font-size:0.9375rem; font-weight:500; color:var(--primario-darken-1); cursor:pointer}
+  .f-cuenta{display:grid; place-items:center; min-width:1.375rem; height:1.375rem; padding:0 0.375rem;
+    border-radius:var(--radius-pill); background:var(--primario-darken-1); color:var(--blanco-base); font-size:0.75rem}
+  .f-cuenta:empty{display:none}
+  .estado{margin-left:0; min-width:0; font-size:0.8125rem}
+  .filtros-hoja{display:none}
+  .filtros.abierto::before{content:""; position:fixed; inset:0; z-index:39; background:rgba(0,0,0,.35)}
+  .filtros.abierto .filtros-hoja{display:flex; flex-direction:column; gap:0.75rem; position:fixed; left:0; right:0; bottom:0;
+    z-index:40; max-height:85vh; overflow:auto; padding:1rem 1rem max(1rem, env(safe-area-inset-bottom));
+    background:var(--blanco-base); border-radius:var(--radius-l) var(--radius-l) 0 0; box-shadow:var(--elevation-05)}
+  .hoja-cab{display:flex; align-items:center}
+  .hoja-cab h2{margin:0; font-size:1.125rem; font-weight:500}
+  .hoja-cab button{margin-left:auto; width:2.75rem; height:2.75rem; border:0; border-radius:var(--radius-s);
+    background:none; display:grid; place-items:center; cursor:pointer}
+  .hoja-listo{display:block; width:100%; min-height:3rem; position:sticky; bottom:0}
+  .filtros-hoja .chip{flex:none; width:100%; max-width:none}
+  .filtros-hoja .enlace{align-self:flex-start}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr)); gap:0.75rem}
+  .tarjeta.kpi{padding:0.875rem}
+  .kpi{gap:0.375rem}
+  .kpi-rot{font-size:0.8125rem; gap:0.5rem}
+  .kpi-rot .ico{width:1.125rem; height:1.125rem}
+  .kpi-num{font-size:1.75rem}
+  .kpi-pie{font-size:0.75rem}
+  .tarjeta{padding:1rem}
+  .act{grid-template-columns:minmax(0,1fr) 7.5rem; gap:0.25rem 0.75rem}
+  .act .medida{grid-column:1 / -1; grid-row:2}
+  .barra-fila{grid-template-columns:minmax(0,1fr) 7rem; gap:0.25rem 0.75rem}
+  .barra-fila .medida{grid-column:1 / -1; grid-row:2}
+  .lienzo{height:18rem}
+}
+@media (pointer:coarse){
+  .barra-fila,.enlace,.btn-sec,.act{min-height:2.75rem}
+  .menu-alt{width:2.75rem; height:2.75rem}
+}
+
+/* ---------- Modo informe (Exportar PDF) ----------
+   Como en SUBSE: se activa antes de imprimir; la caja de cada gráfico toma el
+   ancho de la hoja (A4 menos márgenes = 182 mm) y se redibuja a esa medida. */
+.informe-cab{display:none}
+.informe{background:var(--blanco-base)}
+.informe .cab,.informe .filete,.informe .menu,.informe .filtros,.informe .barra-pie,.informe .pantalla,
+.informe .tabla summary,.informe .acts-cab .btn-sec{display:none}
+.informe .fuera{display:none !important}
+.informe .app,.informe .cuerpo{display:block; min-height:0; height:auto; overflow:visible}
+.informe .contenido{width:182mm; max-width:100%; margin:0 auto; padding:8mm 0; gap:5mm; overflow:visible}
+.informe .informe-cab{display:grid; grid-template-columns:auto 1fr; align-items:center; gap:4mm 6mm;
+  padding-bottom:4mm; border-bottom:3px solid var(--primario-base)}
+.informe-cab img{height:15mm; display:block}
+.informe-cab h1{margin:0; font-family:var(--font-brand); font-size:20pt; line-height:1.1; color:var(--primario-darken-2)}
+.informe-cab p{margin:1mm 0 0; font-size:10pt; color:var(--gris-60)}
+.informe-meta{grid-column:1/-1; display:flex; flex-direction:column; gap:1mm; font-size:9.5pt; color:var(--gris-70)}
+.informe-meta b{font-weight:500; color:var(--negro-text)}
+.informe .pagina,.informe .fila{display:flex; flex-direction:column; gap:5mm}
+.informe .pagina[hidden]{display:flex}
+.informe .kpis{grid-template-columns:repeat(4,minmax(0,1fr)); gap:3mm}
+.informe .tarjeta{padding:4mm 5mm; break-inside:avoid}
+.informe .tarjeta:has(.tabla:not(.fuera)){break-inside:auto}
+.informe .kpi-rot{font-size:9.5pt}
+.informe .kpi-num{font-size:20pt}
+.informe .kpi-pie{font-size:8.5pt}
+.informe .t-cab h2,.informe .acts-cab h2{font-size:13pt}
+.informe .t-sub,.informe .nota{font-size:9pt}
+.informe .leyenda{font-size:9pt}
+.informe .etapas{grid-template-columns:repeat(var(--n,4),minmax(0,1fr)); gap:5mm}
+.informe .nodo{padding:3mm; gap:2mm}
+.informe .nodo::after,.informe .nodo::before{display:none}
+.informe .nodo-cifra b{font-size:18pt}
+.informe .nodo dl{font-size:8pt}
+.informe .lienzo{height:95mm; break-inside:avoid}
+.informe .act{grid-template-columns:62mm minmax(0,1fr) 30mm; padding:1mm 0; font-size:9pt}
+.informe .barra-fila{grid-template-columns:45mm minmax(0,1fr) 30mm; padding:1mm 0; font-size:9pt; cursor:default}
+.informe .tabla-caja{max-height:none; overflow:visible; margin-top:0}
+.informe .tabla table{font-size:8.5pt}
+.informe .tabla thead th{position:static}
+.informe .tabla tr{break-inside:avoid}
+.informe .solo-tabla .lienzo,.informe .solo-tabla .leyenda,.informe .solo-tabla .t-sub,
+.informe .solo-tabla .etapas,.informe .solo-tabla .filas,.informe .solo-tabla .barras{display:none}
+#informe-metodo{display:none}
+.informe #informe-metodo{display:block; break-before:page}
+#informe-metodo dt{margin-top:3mm; font-size:10pt; font-weight:700}
+#informe-metodo dd{margin:1mm 0 0; font-size:9pt; color:var(--gris-70)}
+@media print{
+  @page{size:A4; margin:14mm 14mm 16mm;
+    @bottom-left{content:"Tiempos de tramitación · Arriendo · Ministerio de Bienes Nacionales"; font:8pt Roboto,Arial,sans-serif; color:#666}
+    @bottom-right{content:"Página " counter(page) " de " counter(pages); font:8pt Roboto,Arial,sans-serif; color:#666}}
+  *{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+  .informe .contenido{width:auto; padding:0}
+  .tip,dialog{display:none !important}
+}
+</style>
+</head>
+<body>
+<div class="app inicio" id="app">
+
+  <header class="cab">
+    <img src="ds/assets/logos/minbienes-blanco.png" alt="Ministerio de Bienes Nacionales">
+    <div class="cab-txt">
+      <h1 id="titulo">TIEMPOS DE TRAMITACIÓN</h1>
+      <p>División de Planificación y Presupuesto · Unidad de Planificación y Control de Gestión</p>
+    </div>
+    <div class="cab-der">
+      <div class="sello"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="update"></svg><span id="sello">—</span></div>
+      <button type="button" class="btn-borde" id="exportar" aria-label="Exportar CSV" title="Exportar CSV de la página"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="descarga"></svg><span class="btn-txt"><span class="btn-largo">Exportar </span>CSV</span></button>
+      <button type="button" class="btn-borde" id="pdf" aria-label="Exportar PDF" title="Exportar informe PDF"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="imprimir"></svg><span class="btn-txt"><span class="btn-largo">Exportar </span>PDF</span></button>
+    </div>
+  </header>
+  <div class="filete"></div>
+
+  <div class="cuerpo">
+    <nav class="menu" aria-label="Páginas">
+      <div class="menu-cab">
+        <span class="menu-rot txt">PÁGINAS</span>
+        <button type="button" class="menu-alt" id="menu-alt" aria-label="Retraer panel" aria-expanded="true"><svg class="ico ico--24" viewBox="0 0 24 24" aria-hidden="true" data-i="menu_open"></svg></button>
+      </div>
+      <button type="button" class="pag" data-pag="proceso" title="Recorrido por etapa"><svg class="ico ico--24" viewBox="0 0 24 24" aria-hidden="true" data-i="ruta"></svg><span class="txt">Recorrido por etapa</span></button>
+      <button type="button" class="pag" data-pag="distribucion" title="Distribución"><svg class="ico ico--24" viewBox="0 0 24 24" aria-hidden="true" data-i="barras"></svg><span class="txt">Distribución</span></button>
+      <button type="button" class="pag" data-pag="evolucion" title="Evolución y territorio"><svg class="ico ico--24" viewBox="0 0 24 24" aria-hidden="true" data-i="mapa"></svg><span class="txt">Evolución y territorio</span></button>
+      <div class="menu-pie">
+        <button type="button" id="abrir-metodo" title="Metodología"><svg class="ico ico--22" viewBox="0 0 24 24" aria-hidden="true" data-i="ayuda"></svg><span class="txt">Metodología</span></button>
+      </div>
+    </nav>
+
+    <main class="contenido">
+      <header class="informe-cab" aria-hidden="true">
+        <img src="ds/assets/logos/minbienes-color.png" alt="">
+        <div><h1 id="i-titulo">Tiempos de tramitación</h1>
+          <p>División de Planificación y Presupuesto · Unidad de Planificación y Control de Gestión</p></div>
+        <div class="informe-meta"><span id="i-filtros"></span><span id="i-datos"></span></div>
+      </header>
+
+      <div class="filtros" id="filtros" role="group" aria-label="Filtros">
+        <button type="button" class="btn-filtros" id="f-abrir" aria-expanded="false" aria-controls="f-hoja"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="filtro"></svg>Filtros<span class="f-cuenta" id="f-cuenta"></span></button>
+        <div class="filtros-hoja" id="f-hoja">
+          <div class="hoja-cab"><h2>Filtros</h2><button type="button" id="f-cerrar" aria-label="Cerrar filtros"><svg class="ico ico--22" viewBox="0 0 24 24" aria-hidden="true" data-i="cerrar"></svg></button></div>
+          <label class="chip chip--tramite"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="documento"></svg><span class="chip-rot">Trámite:</span><select id="f-tramite"></select><svg class="ico chip-flecha" viewBox="0 0 24 24" aria-hidden="true" data-i="flecha"></svg></label>
+          <label class="chip"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="globo"></svg><span class="chip-rot">Región:</span><select id="f-region"></select><svg class="ico chip-flecha" viewBox="0 0 24 24" aria-hidden="true" data-i="flecha"></svg></label>
+          <label class="chip chip--fecha" title="Fecha de inicio del expediente, desde"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="calendario"></svg><span class="chip-rot">Ingreso:</span><input type="date" id="f-desde"></label>
+          <label class="chip chip--fecha" title="Fecha de inicio del expediente, hasta"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="calendario"></svg><span class="chip-rot">hasta:</span><input type="date" id="f-hasta"></label>
+          <label class="chip chip--corto"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="documento"></svg><span class="chip-rot">Estado:</span><select id="f-estado">
+            <option value="todos">Todos</option><option value="enproceso">En proceso</option><option value="finalizado">Finalizado</option></select><svg class="ico chip-flecha" viewBox="0 0 24 24" aria-hidden="true" data-i="flecha"></svg></label>
+          <label class="chip chip--atip" title="Afecta solo promedios y medianas, nunca los conteos"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="alerta"></svg><span class="chip-rot">Atípicos:</span><select id="f-atip">
+            <option value="con">Incluidos</option><option value="sin">Excluidos</option></select><svg class="ico chip-flecha" viewBox="0 0 24 24" aria-hidden="true" data-i="flecha"></svg></label>
+          <div class="chip chip--etapa" id="f-etapa" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="ruta"></svg><span id="f-etapa-txt"></span>
+            <button type="button" id="f-etapa-quitar" aria-label="Quitar filtro de etapa"><svg class="ico ico--18" viewBox="0 0 24 24" aria-hidden="true" data-i="cerrar"></svg></button></div>
+          <button type="button" class="enlace" id="f-reset"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="reiniciar"></svg>Restablecer</button>
+          <button type="button" class="btn-pri hoja-listo" id="f-listo">Ver resultados</button>
+        </div>
+        <div class="estado" id="estado" role="status"></div>
+      </div>
+
+      <!-- ============ Página 1: recorrido por etapa ============ -->
+      <section class="pagina" id="p-proceso" aria-label="Recorrido por etapa">
+        <div class="kpis" id="kpis" data-sec="kpis"></div>
+
+        <div class="tarjeta col" id="t-etapas" data-sec="etapas" data-tabla="tabla-etapas">
+          <div class="t-cab">
+            <h2>Recorrido por etapa</h2>
+            <div class="leyenda" aria-hidden="true"><span><i class="k-caja" style="background:var(--primario-darken-1)"></i>Mediana</span><span><i class="k-marca"></i>Promedio</span></div>
+          </div>
+          <p class="t-sub" id="e-sub"></p>
+          <div id="etapas-caja"></div>
+          <p class="nota"><svg class="ico ico--16" viewBox="0 0 24 24" aria-hidden="true" data-i="info"></svg><span>Días por ocurrencia de etapa finalizada. Las etapas <b>no se suman</b> para obtener la duración total: un expediente puede no pasar por todas, o volver a una (recurrencia).</span></p>
+          <details class="tabla" id="tabla-etapas" data-sec="tabla-etapas"></details>
+        </div>
+
+        <div class="tarjeta col" id="t-acts" data-sec="actividades" data-tabla="tabla-acts">
+          <div class="acts-cab">
+            <h2 id="a-tit">Actividades</h2>
+            <button type="button" class="btn-sec pantalla" id="a-todas" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="lista"></svg>Ver todas las etapas</button>
+            <button type="button" class="btn-sec pantalla" id="a-filtrar" aria-pressed="false" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" data-i="filtro"></svg><span id="a-filtrar-txt">Filtrar el panel por esta etapa</span></button>
+          </div>
+          <p class="t-sub" id="a-sub"></p>
+          <div class="leyenda" aria-hidden="true"><span><i class="k-caja" style="background:var(--primario-darken-1)"></i>Mediana</span><span><i class="k-marca"></i>Promedio</span><span><i class="k-caja" style="background:var(--gris-30)"></i>Menos de 5 observaciones</span></div>
+          <div class="filas" id="acts"></div>
+          <details class="tabla" id="tabla-acts" data-sec="tabla-acts"></details>
+        </div>
+      </section>
+
+      <!-- ============ Página 2: distribución ============ -->
+      <section class="pagina" id="p-distribucion" aria-label="Distribución" hidden>
+        <div class="fila">
+          <div class="tarjeta col ancho" data-sec="histograma" data-tabla="tabla-hist">
+            <div class="t-cab">
+              <h2>Duración total de los expedientes finalizados</h2>
+              <div class="leyenda" id="h-leyenda" aria-hidden="true"></div>
+            </div>
+            <p class="t-sub" id="h-sub"></p>
+            <div class="lienzo" id="histograma" tabindex="0" aria-describedby="h-sub"></div>
+            <details class="tabla" id="tabla-hist" data-sec="tabla-hist"></details>
+          </div>
+          <div class="tarjeta col angosto" data-sec="resumen-dist">
+            <div class="t-cab"><h2>Resumen de la distribución</h2></div>
+            <p class="t-sub">Duración total en días, sobre los finalizados de la selección.</p>
+            <table class="stats" id="stats"></table>
+          </div>
+        </div>
+        <div class="tarjeta col" data-sec="cajas" data-tabla="tabla-cajas">
+          <div class="t-cab">
+            <h2>Dispersión de la duración por etapa</h2>
+            <div class="leyenda" aria-hidden="true"><span><i class="k-caja-bp"></i>50 % central (Q1 a Q3)</span><span><i class="k-marca"></i>Mediana</span><span><i class="k-linea" style="background:var(--gris-50);height:2px"></i>Rango sin atípicos</span><span><i class="k-marca" style="background:var(--gris-50);width:1px"></i>Atípico (fuera de 1,5 × RIC)</span></div>
+          </div>
+          <p class="t-sub">Días por ocurrencia de etapa finalizada. Incluye siempre los atípicos: la caja muestra justamente dónde están. Rango intercuartil (RIC) = Q3 − Q1.</p>
+          <div class="lienzo" id="cajas"></div>
+          <details class="tabla" id="tabla-cajas" data-sec="tabla-cajas"></details>
+        </div>
+      </section>
+
+      <!-- ============ Página 3: evolución y territorio ============ -->
+      <section class="pagina" id="p-evolucion" aria-label="Evolución y territorio" hidden>
+        <div class="tarjeta col" data-sec="tendencia" data-tabla="tabla-anual">
+          <div class="t-cab">
+            <h2>Por año de ingreso</h2>
+            <div class="leyenda" aria-hidden="true">
+              <span><i class="k-linea" style="background:var(--primario-darken-1)"></i>Mediana de la duración total</span>
+              <span><i class="k-caja" style="background:var(--chart-2)"></i>Finalizados</span>
+              <span><i class="k-caja" style="background:var(--gris-30)"></i>Siguen en proceso</span>
+            </div>
+          </div>
+          <p class="t-sub" id="y-sub"></p>
+          <div class="lienzo" id="tendencia" tabindex="0" aria-describedby="y-sub" style="height:26rem"></div>
+          <details class="tabla" id="tabla-anual" data-sec="tabla-anual"></details>
+        </div>
+        <div class="tarjeta col" data-sec="regiones" data-tabla="tabla-reg">
+          <div class="t-cab">
+            <h2>Comparación regional</h2>
+            <div class="leyenda" aria-hidden="true"><span><i class="k-caja" style="background:var(--primario-darken-1)"></i>Mediana</span><span><i class="k-marca"></i>Promedio</span><span><i class="k-caja" style="background:var(--gris-30)"></i>Menos de 20 finalizados</span></div>
+          </div>
+          <p class="t-sub" id="r-sub"></p>
+          <div class="barras" id="regiones"></div>
+          <details class="tabla" id="tabla-reg" data-sec="tabla-reg"></details>
+        </div>
+      </section>
+
+      <section class="tarjeta" id="informe-metodo" data-sec="metodologia" hidden>
+        <div class="t-cab"><h2>Metodología</h2></div>
+      </section>
+    </main>
+  </div>
+  <div class="barra-pie"></div>
+</div>
+
+<dialog id="metodo" aria-labelledby="metodo-tit">
+  <div class="dlg-cab"><h2 id="metodo-tit">Metodología</h2>
+    <button type="button" id="cerrar-metodo" aria-label="Cerrar"><svg class="ico ico--22" viewBox="0 0 24 24" aria-hidden="true" data-i="cerrar"></svg></button></div>
+  <dl class="metodo" id="metodo-lista"></dl>
+</dialog>
+
+<dialog id="dlg-pdf" aria-labelledby="pdf-tit">
+  <form id="form-pdf">
+    <div class="dlg-cab"><h2 id="pdf-tit">Exportar informe PDF</h2>
+      <button type="button" id="cerrar-pdf" aria-label="Cerrar"><svg class="ico ico--22" viewBox="0 0 24 24" aria-hidden="true" data-i="cerrar"></svg></button></div>
+    <div class="dlg-cuerpo">
+      <p class="dlg-nota">Elige qué incluir. El informe usa los filtros actuales. En la ventana de impresión, elige «Guardar como PDF».</p>
+      <fieldset><legend>Recorrido por etapa</legend>
+        <label class="opcion"><input type="checkbox" name="sec" value="kpis" checked>Indicadores principales</label>
+        <label class="opcion"><input type="checkbox" name="sec" value="etapas" checked>Recorrido por etapa</label>
+        <label class="opcion"><input type="checkbox" name="sec" value="tabla-etapas">Tabla de etapas</label>
+        <label class="opcion"><input type="checkbox" name="sec" value="actividades" checked>Actividades <span id="pdf-acts"></span></label>
+        <label class="opcion"><input type="checkbox" name="sec" value="tabla-acts">Tabla de actividades</label>
+      </fieldset>
+      <fieldset><legend>Distribución</legend>
+        <label class="opcion"><input type="checkbox" name="sec" value="histograma" checked>Histograma de la duración total</label>
+        <label class="opcion"><input type="checkbox" name="sec" value="resumen-dist" checked>Resumen de la distribución</label>
+        <label class="opcion"><input type="checkbox" name="sec" value="cajas" checked>Dispersión por etapa</label>
+      </fieldset>
+      <fieldset><legend>Evolución y territorio</legend>
+        <label class="opcion"><input type="checkbox" name="sec" value="tendencia" checked>Por año de ingreso</label>
+        <label class="opcion"><input type="checkbox" name="sec" value="tabla-anual">Tabla por año de ingreso</label>
+        <label class="opcion"><input type="checkbox" name="sec" value="regiones" checked>Comparación regional</label>
+        <label class="opcion"><input type="checkbox" name="sec" value="tabla-reg">Tabla regional</label>
+      </fieldset>
+      <fieldset><legend>Anexo</legend>
+        <label class="opcion"><input type="checkbox" name="sec" value="metodologia">Metodología</label>
+      </fieldset>
+    </div>
+    <div class="dlg-pie">
+      <button type="button" class="btn-sec" id="cancelar-pdf">Cancelar</button>
+      <button type="submit" class="btn-pri" id="generar-pdf">Generar PDF</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="tip" id="tip" hidden></div>
+
+<script src="datos.js"></script>
+<!-- El trámite que se abre por omisión viene precargado; los otros 15 se
+     cargan al elegirlos en el segmentador. Si este archivo no existe, el panel
+     lo pide igual al arrancar. -->
+<script src="datos/arriendo.js"></script>
+<script src="agregar.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var DIAS_FRESCO = 2;     // pasado esto, la extracción diaria no corrió
+  var MIN_ACT = 5;         // = MIN_OBSERVACIONES_ATIPICOS: menos que esto, la mediana es frágil
+  var MIN_REG = 20;        // finalizados mínimos para comparar una región sin advertencia
+  var D = window.DATOS;
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---- íconos: los de SUBSE (UI Kit gob.cl / Material) más tres ----
+  var ICONOS = {
+    update: '<path transform="translate(3 3)" d="M8 5v5l4.25 2.52.77-1.28-3.52-2.09V5H8zm10 2V0l-2.64 2.64A8.96 8.96 0 0 0 9 0a9 9 0 1 0 9 9h-2a7 7 0 1 1-2.05-4.95L11 7h7z"/>',
+    descarga: '<path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>',
+    filtro: '<path transform="translate(3 6)" d="M7 12h4v-2H7v2zM0 0v2h18V0H0zm3 7h12V5H3v2z"/>',
+    imprimir: '<path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>',
+    menu_open: '<path d="M3 18h13v-2H3v2zm0-5h10v-2H3v2zm0-7v2h13V6H3zm18 9.59L17.42 12 21 8.41 19.59 7l-5 5 5 5L21 15.59z"/>',
+    menu: '<path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>',
+    mapa: '<path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM10 5.47l4 1.4v11.66l-4-1.4V5.47zm-5 .99l3-1.01v11.7l-3 1.16V6.46zm14 11.08l-3 1.01V6.86l3-1.16v11.84z"/>',
+    ayuda: '<path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/>',
+    globo: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>',
+    calendario: '<path transform="translate(3 2)" d="M16 2h-1V0h-2v2H5V0H3v2H2C.89 2 .01 2.9.01 4L0 18c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 16H2V8h14v10zm0-12H2V4h14v2zM9 11h5v5H9v-5z"/>',
+    documento: '<path transform="translate(4 2)" d="M4 14h8v2H4v-2zm0-4h8v2H4v-2zm6-10H2C.9 0 0 .9 0 2v16c0 1.1.89 2 1.99 2H14c1.1 0 2-.9 2-2V6l-6-6zm4 18H2V2h7v5h5v11z"/>',
+    flecha: '<path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"/>',
+    reiniciar: '<path d="M12 5V2L8 6l4 4V7c3.31 0 6 2.69 6 6 0 2.97-2.17 5.43-5 5.91v2.02c3.95-.49 7-3.85 7-7.93 0-4.42-3.58-8-8-8zm-6 8c0-1.65.67-3.15 1.76-4.24L6.34 7.34A7.95 7.95 0 0 0 4 13c0 4.08 3.05 7.44 7 7.93v-2.02c-2.83-.48-5-2.94-5-5.91z"/>',
+    info: '<path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>',
+    alerta: '<path transform="translate(1 2.5)" d="M11 3.99 18.53 17H3.47L11 3.99zM11 0 0 19h22L11 0zm1 14h-2v2h2v-2zm0-6h-2v4h2V8z"/>',
+    entrada: '<path d="M19 3H4.99C3.88 3 3 3.9 3 5l.01 14c0 1.1.88 2 1.99 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 12h-4c0 1.66-1.35 3-3 3s-3-1.34-3-3H4.99V5H19v10zm-3-5h-2V7h-4v3H8l4 4 4-4z"/>',
+    listo: '<path transform="translate(2 2)" d="M20 3.18 8.59 14.6l-4.24-4.24 1.41-1.41 2.83 2.83 10-10L20 3.18zm-2.21 5.04c.13.57.21 1.17.21 1.78 0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8c1.58 0 3.04.46 4.28 1.25l1.44-1.44A9.9 9.9 0 0 0 10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10c0-1.19-.22-2.33-.6-3.39l-1.61 1.61z"/>',
+    reloj: '<path transform="translate(2 2)" d="M9.99 0C4.47 0 0 4.48 0 10s4.47 10 9.99 10C15.52 20 20 15.52 20 10S15.52 0 9.99 0zM10 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H9v6l5.25 3.15.75-1.23-4.5-2.67V5z"/>',
+    cerrar: '<path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>',
+    // Material: timeline, bar_chart, view_list, hourglass
+    ruta: '<path d="M23 8c0 1.1-.9 2-2 2-.18 0-.35-.02-.51-.07l-3.56 3.55c.05.16.07.34.07.52 0 1.1-.9 2-2 2s-2-.9-2-2c0-.18.02-.36.07-.52l-2.55-2.55c-.16.05-.34.07-.52.07s-.36-.02-.52-.07l-4.55 4.56c.05.16.07.33.07.51 0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2c.18 0 .35.02.51.07l4.56-4.55C8.02 9.36 8 9.18 8 9c0-1.1.9-2 2-2s2 .9 2 2c0 .18-.02.36-.07.52l2.55 2.55c.16-.05.34-.07.52-.07s.36.02.52.07l3.55-3.56C19.02 8.35 19 8.18 19 8c0-1.1.9-2 2-2s2 .9 2 2z"/>',
+    barras: '<path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/>',
+    lista: '<path d="M3 14h4v-4H3v4zm0 5h4v-4H3v4zM3 9h4V5H3v4zm5 5h13v-4H8v4zm0 5h13v-4H8v4zM8 5v4h13V5H8z"/>',
+    reloj_arena: '<path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5-4-4V4h8v3.5l-4 4z"/>'
+  };
+  function ico(nombre, extra) {
+    return '<svg class="ico ' + (extra || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + ICONOS[nombre] + '</svg>';
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('svg[data-i]'), function (s) {
+    s.innerHTML = ICONOS[s.getAttribute('data-i')];
+  });
+
+  // ---- formato chileno ----
+  function num(n) { return n == null ? '—' : Math.round(n).toLocaleString('es-CL'); }
+  // Días: enteros tal cual, el resto con un decimal (las medianas pueden ser ,5).
+  function dias(v) {
+    if (v == null || isNaN(v)) return '—';
+    var x = Math.round(v * 10) / 10;
+    if (Object.is(x, -0)) x = 0;   // un promedio apenas negativo salía «-0»
+    return x.toLocaleString('es-CL', { maximumFractionDigits: 1 });
+  }
+  function dec(v, d) { return v == null ? '—' : v.toLocaleString('es-CL', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+  function pct(v) { return v == null ? '—' : Math.round(v * 100) + ' %'; }
+  function dmy(iso) { return iso ? iso.slice(8, 10) + '-' + iso.slice(5, 7) + '-' + iso.slice(0, 4) : '—'; }
+  function fechaHora(iso) {
+    var d = new Date(iso), p = function (v) { return String(v).padStart(2, '0'); };
+    return p(d.getDate()) + '-' + p(d.getMonth() + 1) + '-' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  // «1. Ingreso solicitud y requerimientos» -> ['1', 'Ingreso solicitud y requerimientos']
+  function partir(nombre) {
+    var m = /^\s*(\d+)\.\s*(.*)$/.exec(nombre);
+    return m ? [m[1], m[2]] : ['', nombre];
+  }
+
+  // ---- universo y estado ----
+  // `datos.js` es solo el índice: qué trámites hay y en qué archivo está cada
+  // uno. El del trámite elegido se carga aparte (los 16 juntos pesan ~90 MB).
+  var IDX = window.DATOS, D = null, conDatos = {};
+  var DESDE0 = null, HASTA0 = null, ANIO_ACTUAL = null;
+
+  var S = { pag: 'proceso', sel: null, etapa: null, orden: {} };
+  var r = null;   // último cálculo
+
+  $('sello').textContent = 'Actualizado ' + fechaHora(IDX.generado);
+  $('f-tramite').innerHTML = IDX.tramites.map(function (t) {
+    return '<option value="' + esc(t.slug) + '">' + esc(t.nombre) + ' (' + num(t.expedientes) + ')</option>';
+  }).join('');
+
+  function filaTramite(s) {
+    return IDX.tramites.filter(function (t) { return t.slug === s; })[0] || IDX.tramites[0];
+  }
+
+  // Carga diferida del trámite: si ya está en memoria no se vuelve a pedir.
+  // Sin fetch, con una etiqueta <script>, para que siga funcionando desde
+  // file:// igual que el resto del panel.
+  var cargando = null;
+  function cargarTramite(s, alTerminar) {
+    var fila = filaTramite(s);
+    var tabla = window.DATOS_TRAMITES || {};
+    if (tabla[s]) { alTerminar(tabla[s]); return; }
+    if (cargando === s) return;
+    cargando = s;
+    $('estado').className = 'estado';
+    $('estado').innerHTML = ico('update') + 'Cargando ' + esc(fila.nombre) + ' (' + dec(fila.mb, 1) + ' MB)…';
+    var sc = document.createElement('script');
+    sc.src = fila.archivo;
+    sc.onload = function () {
+      cargando = null;
+      var p = (window.DATOS_TRAMITES || {})[s];
+      if (p) alTerminar(p); else falloTramite(fila);
+    };
+    sc.onerror = function () { cargando = null; falloTramite(fila); };
+    document.head.appendChild(sc);
+  }
+  function falloTramite(fila) {
+    $('estado').className = 'estado estado--alerta';
+    $('estado').innerHTML = ico('alerta') + 'No se pudo cargar ' + esc(fila.archivo) + ': vuelve a generarlo con extraer.py';
+  }
+
+  // Todo lo que depende del trámite: universo de fechas, regiones con datos,
+  // diccionarios de etapas y actividades, metodología y título.
+  function iniciarTramite(payload) {
+    D = payload;
+    var minFi = Infinity, maxFi = -Infinity;
+    D.exp.fi.forEach(function (d) { if (d != null) { if (d < minFi) minFi = d; if (d > maxFi) maxFi = d; } });
+    DESDE0 = AGG.fecha(minFi); HASTA0 = AGG.fecha(maxFi);
+    ANIO_ACTUAL = +(D.corte && D.corte.ultimoMovimiento || IDX.generado).slice(0, 4);
+    conDatos = {};
+    D.exp.region.forEach(function (x) { conDatos[x] = true; });
+    $('f-region').innerHTML = '<option value="">Todas</option>' + D.regiones.map(function (x, j) {
+      return conDatos[j] ? '<option value="' + j + '">' + esc(x.nombre) + '</option>' : '';
+    }).join('');
+    $('f-region').value = '';
+    ['f-desde', 'f-hasta'].forEach(function (id) { $(id).min = DESDE0; $(id).max = HASTA0; });
+    $('f-desde').value = DESDE0; $('f-hasta').value = HASTA0;
+    S.sel = null; S.etapa = null;
+    var metodo = D.metodologia.map(function (m) { return '<dt>' + esc(m[0]) + '</dt><dd>' + esc(m[1]) + '</dd>'; }).join('');
+    $('metodo-lista').innerHTML = metodo;
+    $('informe-metodo').querySelector('dl').innerHTML = metodo;
+    $('titulo').textContent = 'TIEMPOS DE TRAMITACIÓN · ' + D.tramite.toUpperCase();
+    $('i-titulo').textContent = 'Tiempos de tramitación · ' + D.tramite;
+    tituloPrevio = document.title = 'Tiempos de tramitación · ' + D.tramite;
+  }
+
+  function filtro() {
+    return {
+      region: $('f-region').value === '' ? null : +$('f-region').value,
+      desde: $('f-desde').value || null, hasta: $('f-hasta').value || null,
+      estado: $('f-estado').value, sinAtipicos: $('f-atip').value === 'sin', etapa: S.etapa
+    };
+  }
+  function nombreEtapa(i) { return D.etapas[i].nombre; }
+
+  // La vista va en el hash, para mandar por correo exactamente lo que uno mira.
+  function guardarHash() {
+    var f = filtro(), p = ['t=' + $('f-tramite').value, 'p=' + S.pag];
+    if (f.region != null) p.push('region=' + D.regiones[f.region].codigo);
+    if (f.desde && f.desde !== DESDE0) p.push('desde=' + f.desde);
+    if (f.hasta && f.hasta !== HASTA0) p.push('hasta=' + f.hasta);
+    if (f.estado !== 'todos') p.push('estado=' + f.estado);
+    if (f.sinAtipicos) p.push('atipicos=sin');
+    if (S.sel != null) p.push('sel=' + S.sel);
+    if (S.etapa != null) p.push('etapa=' + S.etapa);
+    location.replace('#' + p.join('&'));
+  }
+  function leerHash() {
+    var h = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) {
+      var x = kv.split('='); if (x[0]) h[x[0]] = decodeURIComponent(x[1] || '');
+    });
+    if (['proceso', 'distribucion', 'evolucion'].indexOf(h.p) >= 0) S.pag = h.p;
+    if (h.t && filaTramite(h.t).slug === h.t) $('f-tramite').value = h.t;
+    if (h.region) D.regiones.forEach(function (x, j) { if (x.codigo === h.region && conDatos[j]) $('f-region').value = j; });
+    if (/^\d{4}-\d\d-\d\d$/.test(h.desde || '')) $('f-desde').value = h.desde;
+    if (/^\d{4}-\d\d-\d\d$/.test(h.hasta || '')) $('f-hasta').value = h.hasta;
+    if (h.estado === 'enproceso' || h.estado === 'finalizado') $('f-estado').value = h.estado;
+    if (h.atipicos === 'sin') $('f-atip').value = 'sin';
+    // Ojo: leerHash() corre dos veces, y la primera es antes de cargar el
+    // trámite (D todavía es null): la etapa se valida solo cuando hay datos.
+    var etapaValida = function (v) { return D && /^\d+$/.test(v || '') && +v < D.etapas.length ? +v : null; };
+    S.sel = etapaValida(h.sel);
+    S.etapa = etapaValida(h.etapa);
+  }
+
+  // ---- tooltip (DOM, no innerHTML: los rótulos vienen de la base) ----
+  var tipEl = $('tip');
+  function tip(ev, titulo, filas) {
+    tipEl.textContent = '';
+    var t = document.createElement('div'); t.className = 'tip-tit'; t.textContent = titulo; tipEl.appendChild(t);
+    filas.forEach(function (f) {
+      var row = document.createElement('div'); row.className = 'tip-fila';
+      var k = document.createElement('i'); k.className = 'tip-k' + (f.caja ? ' tip-k--caja' : '');
+      k.style.background = f.color || 'transparent'; row.appendChild(k);
+      var b = document.createElement('b'); b.textContent = f.valor; row.appendChild(b);
+      var s = document.createElement('span'); s.textContent = f.rotulo; row.appendChild(s);
+      tipEl.appendChild(row);
+    });
+    tipEl.hidden = false;
+    var x = ev.clientX + 16, y = ev.clientY + 16, w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+    if (x + w > innerWidth - 8) x = ev.clientX - w - 16;
+    if (y + h > innerHeight - 8) y = ev.clientY - h - 16;
+    tipEl.style.left = Math.max(8, x) + 'px'; tipEl.style.top = Math.max(8, y) + 'px';
+  }
+  function sinTip() { tipEl.hidden = true; }
+  function evDe(el) {
+    var b = el.getBoundingClientRect();
+    return { clientX: b.left + b.width / 2, clientY: b.top + b.height / 2 };
+  }
+  // Hover y foco de teclado sobre elementos con data-tip (índice en `lista`).
+  function conTip(caja, selector, datos) {
+    var mostrar = function (el, ev) { var d = datos(el); if (d) tip(ev || evDe(el), d[0], d[1]); };
+    caja.onpointermove = function (ev) { var el = ev.target.closest(selector); if (el) mostrar(el, ev); else sinTip(); };
+    caja.onpointerleave = sinTip;
+    caja.onfocusin = function (ev) { var el = ev.target.closest(selector); if (el) mostrar(el); };
+    caja.onfocusout = sinTip;
+  }
+
+  // ---- utilidades de gráfico (las de SUBSE) ----
+  var ESCALERA = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+  function techo(max) {
+    if (!(max > 0)) return 1;
+    var e = Math.pow(10, Math.floor(Math.log(max) / Math.LN10)), m = max / e;
+    for (var j = 0; j < ESCALERA.length; j++) if (m <= ESCALERA[j] + 1e-9) return ESCALERA[j] * e;
+    return 10 * e;
+  }
+  // Punta redondeada de 4 px y base recta, apoyada en el cero.
+  function barra(x, y, w, h, extra) {
+    if (h <= 0 || w <= 0) return '';
+    var q = Math.min(4, w / 2, h);
+    return '<path ' + (extra || '') + ' d="M' + x + ',' + (y + h) + 'V' + (y + q) + 'q0,' + (-q) + ' ' + q + ',' + (-q) +
+      'h' + (w - 2 * q) + 'q' + q + ',0 ' + q + ',' + q + 'V' + (y + h) + 'Z"/>';
+  }
+  function t(x, y, txt, attrs) {
+    return '<text x="' + (+x).toFixed(1) + '" y="' + (+y).toFixed(1) + '" ' + (attrs || '') + '>' + esc(txt) + '</text>';
+  }
+  var TRAMA = '<defs><pattern id="trama" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
+    '<rect width="6" height="6" fill="var(--primario-darken-1)"/><rect width="2.5" height="6" fill="var(--blanco-base)"/></pattern></defs>';
+
+  // Barra de duración: largo = mediana, marca = promedio, escala común.
+  function medida(mediana, promedio, max) {
+    var w = function (v) { return Math.max(0, Math.min(100, v / max * 100)).toFixed(2) + '%'; };
+    return '<span class="medida">' + (mediana != null ? '<i style="width:' + w(mediana) + '"></i>' : '') +
+      (promedio != null ? '<b style="left:' + w(promedio) + '"></b>' : '') + '</span>';
+  }
+
+  // ---- tablas ordenables ----
+  // cols: [{ k, rot, fmt, izq }]. El orden se recuerda por tabla.
+  function tabla(id, cols, filas, resumen, pie) {
+    var el = $(id), o = S.orden[id];
+    if (o) {
+      var c = cols[o.col];
+      filas = filas.slice().sort(function (a, b) {
+        var x = a[c.k], y = b[c.k];
+        if (x == null) return 1; if (y == null) return -1;
+        var d = typeof x === 'string' ? x.localeCompare(y, 'es') : x - y;
+        return o.dir === 'asc' ? d : -d;
+      });
+    }
+    var abierta = el.open;
+    el.innerHTML = '<summary>' + (resumen || 'Ver tabla de datos') + '</summary><div class="tabla-caja"><table><thead><tr>' +
+      cols.map(function (c, i) {
+        var ar = o && o.col === i ? (o.dir === 'asc' ? 'ascending' : 'descending') : 'none';
+        return '<th scope="col" class="' + (c.izq ? 'izq' : '') + '" aria-sort="' + ar + '"><button type="button" data-col="' + i + '">' +
+          esc(c.rot) + (o && o.col === i ? (o.dir === 'asc' ? ' ▲' : ' ▼') : '') + '</button></th>';
+      }).join('') + '</tr></thead><tbody>' +
+      filas.map(function (f) {
+        return '<tr>' + cols.map(function (c, i) {
+          var v = c.fmt ? c.fmt(f[c.k], f) : esc(f[c.k] == null ? '—' : f[c.k]);
+          return i === 0 ? '<th scope="row">' + v + '</th>' : '<td class="' + (c.izq ? 'izq' : '') + '">' + v + '</td>';
+        }).join('') + '</tr>';
+      }).join('') + '</tbody></table>' + (pie ? '<p class="t-sub" style="margin:0.5rem 0 0">' + pie + '</p>' : '') + '</div>';
+    el.open = abierta;
+    el.onclick = function (ev) {
+      var b = ev.target.closest('th button'); if (!b) return;
+      var i = +b.getAttribute('data-col'), cur = S.orden[id];
+      S.orden[id] = { col: i, dir: cur && cur.col === i && cur.dir === 'desc' ? 'asc' : 'desc' };
+      tabla(id, cols, filas, resumen, pie);
+      el.querySelector('th button[data-col="' + i + '"]').focus();
+    };
+  }
+
+  // ==================================================================
+  // Página 1: recorrido por etapa
+  // ==================================================================
+  function pintarKpis() {
+    var k = r.kpi, f = filtro();
+    var rango = f.desde === DESDE0 && f.hasta === HASTA0 ? 'desde ' + dmy(DESDE0) : 'entre ' + dmy(f.desde) + ' y ' + dmy(f.hasta);
+    var tarjetas = [
+      ['entrada', 'Expedientes ingresados', num(k.ingresados), 'Con inicio ' + rango + '. No cambia con el filtro de estado.'],
+      ['listo', 'Finalizados', num(k.finalizados), 'Estado del sistema: Finalizado'],
+      ['reloj', 'En proceso', num(k.enProceso), 'Estado del sistema: En proceso'],
+      ['reloj_arena', 'Duración total · mediana', k.mediana == null ? '—' : dias(k.mediana) + '<small>días</small>',
+        k.mediana == null ? 'Sin finalizados en la selección'
+          // nDur puede ser menor que Finalizados: un finalizado sin fecha de
+          // término no tiene duración (metodología, punto 17).
+          : 'Promedio ' + dias(k.promedio) + ' días · sobre ' + num(k.nDur) + (k.nDur === 1 ? ' finalizado' : ' finalizados') +
+            (k.nDur < k.finalizados ? ' con fecha de término' : '') + (f.sinAtipicos ? ', sin atípicos' : '')]
+    ];
+    $('kpis').innerHTML = tarjetas.map(function (x) {
+      return '<div class="tarjeta kpi"><div class="kpi-rot">' + ico(x[0], 'ico--22') + x[1] + '</div>' +
+        '<div class="kpi-num">' + x[2] + '</div><div class="kpi-pie">' + x[3] + '</div></div>';
+    }).join('');
+  }
+
+  function pintarEtapas() {
+    var porIndice = {};
+    r.etapas.forEach(function (e) { porIndice[e.indice] = e; });
+    var max = 0;
+    r.etapas.forEach(function (e) { max = Math.max(max, e.mediana || 0, e.duracion || 0); });
+    max = techo(max);
+    var nodo = function (i) {
+      var e = porIndice[i], p = partir(nombreEtapa(i)), sel = S.sel === i;
+      if (!e) {
+        return '<button type="button" class="nodo" disabled aria-pressed="false"><span class="nodo-cab"><span class="nodo-n">' + esc(p[0] || i + 1) +
+          '</span><span class="nodo-nom">' + esc(p[1]) + '</span></span><span class="nodo-cifra"><b>—</b></span>' +
+          '<span class="nota">Ningún expediente de la selección pasó por esta etapa.</span></button>';
+      }
+      return '<button type="button" class="nodo" data-etapa="' + i + '" aria-pressed="' + sel + '" aria-label="' +
+        esc(nombreEtapa(i)) + ': mediana ' + dias(e.mediana) + ' días. Ver sus actividades.">' +
+        '<span class="nodo-cab"><span class="nodo-n">' + esc(p[0] || i + 1) + '</span><span class="nodo-nom">' + esc(p[1]) + '</span></span>' +
+        '<span class="nodo-cifra"><b>' + dias(e.mediana) + '</b><span>días, mediana</span></span>' +
+        medida(e.mediana, e.duracion, max) +
+        '<dl><dt>Promedio</dt><dd>' + dias(e.duracion) + ' días</dd>' +
+        '<dt>Ocurrencias finalizadas</dt><dd>' + num(e.nObservaciones) + '</dd>' +
+        '<dt>Expedientes finalizados</dt><dd>' + num(e.finalizados) + '</dd>' +
+        '<dt>En proceso en la etapa</dt><dd>' + num(e.enProceso) + '</dd>' +
+        '<dt>Recurrencia</dt><dd>' + dec(e.recurrencia, 2) + '</dd></dl></button>';
+    };
+    // Las de postulación («(P)») van en su propia franja, como en la v7.
+    var generales = [], post = [];
+    D.etapas.forEach(function (e, i) { (e.postulacion ? post : generales).push(i); });
+    var franja = function (lista) {
+      return '<div class="etapas' + (S.sel != null ? ' con-sel' : '') + '" style="--n:' + lista.length + '">' + lista.map(nodo).join('') + '</div>';
+    };
+    $('etapas-caja').innerHTML = (post.length ? '<h3 class="sub-rot">Postulación</h3>' + franja(post) + '<h3 class="sub-rot">Tramitación</h3>' : '') +
+      franja(generales);
+    $('e-sub').innerHTML = 'Mediana y promedio de días por etapa, en el orden del proceso.<span class="pantalla"> Elige una etapa para ver sus actividades.</span>';
+
+    tabla('tabla-etapas', [
+      { k: 'etapa', rot: 'Etapa', izq: true },
+      { k: 'mediana', rot: 'Mediana (días)', fmt: dias },
+      { k: 'duracion', rot: 'Promedio (días)', fmt: dias },
+      { k: 'nObservaciones', rot: 'Ocurrencias finalizadas', fmt: num },
+      { k: 'finalizados', rot: 'Expedientes finalizados', fmt: num },
+      { k: 'enProceso', rot: 'En proceso', fmt: num },
+      { k: 'recurrencia', rot: 'Recurrencia', fmt: function (v) { return dec(v, 2); } }
+    ], r.etapas, 'Ver tabla de etapas');
+  }
+
+  function pintarActividades() {
+    var sel = S.sel, filas = r.actividades.filter(function (a) {
+      var ia = D.actividades[a.indice].etapa;
+      return sel == null || ia === sel;
+    });
+    var max = 0;
+    filas.forEach(function (a) { max = Math.max(max, a.mediana || 0, a.duracion || 0); });
+    max = techo(max);
+    var html = '', grupo = null;
+    filas.forEach(function (a, j) {
+      if (sel == null && a.etapa !== grupo) { grupo = a.etapa; html += '<p class="grupo-rot">' + esc(grupo) + '</p>'; }
+      var fina = a.nObservaciones < MIN_ACT;
+      html += '<div class="act' + (fina ? ' act--fina' : '') + '" tabindex="0" data-i="' + j + '">' +
+        '<span class="act-nom" title="' + esc(a.actividad) + '">' + esc(a.actividad) + '</span>' +
+        medida(a.mediana, a.duracion, max) +
+        '<span class="act-val"><b>' + dias(a.mediana) + '</b> <span>· ' + dias(a.duracion) + ' días</span></span></div>';
+    });
+    $('acts').innerHTML = html || '<p class="vacio">Sin actividades para esta selección.</p>';
+    conTip($('acts'), '.act', function (el) {
+      var a = filas[+el.getAttribute('data-i')];
+      return [a.actividad, [
+        { valor: dias(a.mediana) + ' d', rotulo: 'Mediana', color: 'var(--primario-darken-1)', caja: true },
+        { valor: dias(a.duracion) + ' d', rotulo: 'Promedio', color: 'var(--negro-text)' },
+        { valor: num(a.nObservaciones), rotulo: 'Ocurrencias finalizadas' },
+        { valor: num(a.finalizados), rotulo: 'Expedientes finalizados' },
+        { valor: num(a.enProceso), rotulo: 'En proceso' }
+      ]];
+    });
+
+    $('a-tit').textContent = sel == null ? 'Actividades por etapa' : 'Actividades de «' + partir(nombreEtapa(sel))[1] + '»';
+    $('a-sub').innerHTML = 'Días por ocurrencia de actividad finalizada: <b>mediana</b> · promedio.' +
+      (sel == null ? '' : ' Solo la etapa elegida.') +
+      (S.etapa != null ? ' El panel está filtrado a los expedientes que pasaron por «' + esc(partir(nombreEtapa(S.etapa))[1]) + '».' : '');
+    $('a-todas').hidden = sel == null;
+    $('a-filtrar').hidden = sel == null;
+    var filtrando = sel != null && S.etapa === sel;
+    $('a-filtrar').setAttribute('aria-pressed', filtrando);
+    $('a-filtrar-txt').textContent = filtrando ? 'Panel filtrado por esta etapa' : 'Filtrar el panel por esta etapa';
+    $('pdf-acts').textContent = sel == null ? '(todas las etapas)' : '(' + partir(nombreEtapa(sel))[1] + ')';
+
+    tabla('tabla-acts', [
+      { k: 'etapa', rot: 'Etapa', izq: true },
+      { k: 'actividad', rot: 'Actividad', izq: true },
+      { k: 'mediana', rot: 'Mediana (días)', fmt: dias },
+      { k: 'duracion', rot: 'Promedio (días)', fmt: dias },
+      { k: 'nObservaciones', rot: 'Ocurrencias finalizadas', fmt: num },
+      { k: 'finalizados', rot: 'Expedientes finalizados', fmt: num },
+      { k: 'enProceso', rot: 'En proceso', fmt: num }
+    ], filas, 'Ver tabla de actividades');
+  }
+
+  // ==================================================================
+  // Página 2: distribución
+  // ==================================================================
+  // Umbral de atípico en la selección: la menor duración marcada como
+  // atípica por encima de la mediana. Sale de la marca de procesar.py, no se
+  // recalcula aquí (el IQR se calculó sobre todo el trámite).
+  function umbralAtipico() {
+    var E = D.exp, u = null, med = r.kpi.mediana, n = 0;
+    r.expedientes.forEach(function (i) {
+      if (!E.fin[i] || !E.atip[i] || E.dur[i] == null) return;
+      n++;
+      if (med != null && E.dur[i] > med && (u === null || E.dur[i] < u)) u = E.dur[i];
+    });
+    return { desde: u, n: n };
+  }
+
+  var GH = null;
+  function pintarHistograma() {
+    var caja = $('histograma'), W = caja.clientWidth, H = caja.clientHeight;
+    var vals = r.histograma, h = AGG.histograma(vals, 36), f = filtro(), at = umbralAtipico();
+    $('h-sub').textContent = h ? num(h.n) + ' expedientes finalizados' + (f.sinAtipicos ? ', sin los ' + num(at.n) + ' atípicos' : '') +
+      '. Clases de ' + num(h.ancho) + ' días; la última junta todo lo que pasa de ' + num(h.tope) + ' días.' : '';
+    $('h-leyenda').innerHTML = '<span><i class="k-caja" style="background:var(--primario-darken-1)"></i>Expedientes</span>' +
+      (!f.sinAtipicos && at.desde != null ? '<span><i class="k-trama"></i>Clases con atípicos (el primero, ' + num(at.desde) + ' días)</span>' : '') +
+      '<span><i class="k-marca"></i>Mediana</span><span><i class="k-guion"></i>Promedio</span>';
+    if (!h || W < 60) { caja.innerHTML = '<p class="vacio">Sin expedientes finalizados en la selección.</p>'; GH = null; pintarTablaHist(null); return; }
+    var PI = 56, PD = 16, ARR = 28, EJE = 30;
+    var nb = h.cuenta.length + (h.cola ? 1 : 0);
+    var hueco = h.cola ? 10 : 0, paso = (W - PI - PD - hueco) / nb, alto = H - ARR - EJE;
+    var cuentas = h.cuenta.concat(h.cola ? [h.cola] : []);
+    var maxY = techo(Math.max.apply(null, cuentas));
+    var xDe = function (v) { return PI + (v - h.desde) / h.ancho * paso; };
+    var o = [TRAMA];
+    [0, 0.5, 1].forEach(function (q) {
+      var yy = Math.round(ARR + alto - q * alto) + 0.5;
+      o.push('<line x1="' + PI + '" x2="' + (W - PD) + '" y1="' + yy + '" y2="' + yy + '" stroke="var(--chart-grilla)"/>');
+      o.push(t(PI - 8, yy + 4, num(maxY * q), 'text-anchor="end" font-size="12" fill="var(--gris-60)"'));
+    });
+    var bw = Math.max(1, paso - 2);
+    cuentas.forEach(function (c, j) {
+      var esCola = j >= h.cuenta.length, x0 = esCola ? PI + h.cuenta.length * paso + hueco : PI + j * paso;
+      var ini = h.desde + j * h.ancho, atip = !f.sinAtipicos && at.desde != null && (esCola || ini + h.ancho > at.desde);
+      var ah = c / maxY * alto;
+      o.push(barra(+(x0 + 1).toFixed(1), +(ARR + alto - ah).toFixed(1), +bw.toFixed(1), +ah.toFixed(1),
+        'fill="' + (atip ? 'url(#trama)' : 'var(--primario-darken-1)') + '"'));
+    });
+    // Eje X: rótulos cada ~70 px, en múltiplos de la clase.
+    var cada = Math.max(1, Math.ceil(70 / paso));
+    for (var j = 0; j <= h.cuenta.length; j += cada) o.push(t(PI + j * paso, H - 10, num(h.desde + j * h.ancho), 'text-anchor="middle" font-size="12" fill="var(--gris-60)"'));
+    if (h.cola) o.push(t(PI + h.cuenta.length * paso + hueco + paso / 2, H - 10, '> ' + num(h.tope), 'text-anchor="middle" font-size="12" fill="var(--gris-60)"'));
+    o.push(t(W - PD, H + 8, 'días', 'text-anchor="end" font-size="11" fill="var(--gris-60)"'));
+    // Referencias: mediana (oscura) y promedio (gris), rotuladas arriba.
+    var refs = [[r.kpi.mediana, 'Mediana ' + dias(r.kpi.mediana), 'var(--negro-text)'], [r.kpi.promedio, 'Promedio ' + dias(r.kpi.promedio), 'var(--gris-50)']];
+    refs.forEach(function (rf, q) {
+      if (rf[0] == null || rf[0] >= h.tope) return;
+      var x = xDe(rf[0]);
+      o.push('<line x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="' + (ARR - 6) + '" y2="' + (ARR + alto) + '" stroke="' + rf[2] + '" stroke-width="2"' + (q ? ' stroke-dasharray="4 3"' : '') + '/>');
+      o.push(t(x + (q ? 6 : -6), ARR - 12, rf[1] + ' d', 'text-anchor="' + (q ? 'start' : 'end') + '" font-size="12" font-weight="500" fill="var(--negro-text)"'));
+    });
+    o.push('<line class="h-foco" y1="' + ARR + '" y2="' + (ARR + alto) + '" stroke="var(--gris-50)" visibility="hidden"/>');
+    caja.innerHTML = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Histograma de la duración total de ' +
+      num(h.n) + ' expedientes finalizados. Mediana ' + dias(r.kpi.mediana) + ' días. Los valores están en la tabla de datos.">' + o.join('') + '</svg>';
+    GH = { h: h, PI: PI, paso: paso, hueco: hueco, n: nb, alto: alto, ARR: ARR };
+    pintarTablaHist(h);
+  }
+  function claseHist(j) {
+    var h = GH.h, esCola = j >= h.cuenta.length;
+    return {
+      rot: esCola ? 'Más de ' + num(h.tope) + ' días' : num(h.desde + j * h.ancho) + ' a ' + num(h.desde + (j + 1) * h.ancho - 1) + ' días',
+      n: esCola ? h.cola : h.cuenta[j]
+    };
+  }
+  function marcarHist(j, ev) {
+    if (!GH) return;
+    var c = claseHist(j), x = j >= GH.h.cuenta.length ? GH.PI + GH.h.cuenta.length * GH.paso + GH.hueco + GH.paso / 2 : GH.PI + (j + 0.5) * GH.paso;
+    var l = $('histograma').querySelector('.h-foco');
+    l.setAttribute('x1', x); l.setAttribute('x2', x); l.setAttribute('visibility', 'visible');
+    tip(ev, c.rot, [{ valor: num(c.n), rotulo: 'expedientes', color: 'var(--primario-darken-1)', caja: true },
+      { valor: pct(c.n / GH.h.n), rotulo: 'del total' }]);
+  }
+  interactivo($('histograma'), function () { return GH && GH.n; }, function (ev) {
+    var b = $('histograma').getBoundingClientRect(), x = ev.clientX - b.left - GH.PI;
+    var nc = GH.h.cuenta.length;
+    if (x < 0) return -1;
+    if (x < nc * GH.paso) return Math.floor(x / GH.paso);
+    return GH.h.cola && x > nc * GH.paso + GH.hueco ? nc : -1;
+  }, marcarHist, function (j) {
+    var b = $('histograma').getBoundingClientRect();
+    return { clientX: b.left + GH.PI + (j + 0.5) * GH.paso, clientY: b.top + 60 };
+  }, '.h-foco');
+
+  function pintarTablaHist(h) {
+    var filas = [];
+    if (h) for (var j = 0; j < h.cuenta.length + (h.cola ? 1 : 0); j++) {
+      var esCola = j >= h.cuenta.length, n = esCola ? h.cola : h.cuenta[j];
+      filas.push({ desde: esCola ? h.tope : h.desde + j * h.ancho, rot: esCola ? 'Más de ' + num(h.tope) : num(h.desde + j * h.ancho) + ' a ' + num(h.desde + (j + 1) * h.ancho - 1), n: n, p: n / h.n });
+    }
+    tabla('tabla-hist', [
+      { k: 'desde', rot: 'Duración (días)', fmt: function (v, f) { return f.rot; } },
+      { k: 'n', rot: 'Expedientes', fmt: num },
+      { k: 'p', rot: '% del total', fmt: pct }
+    ], filas);
+  }
+
+  function pintarStats() {
+    var v = r.histograma.slice().sort(function (a, b) { return a - b; }), f = filtro(), at = umbralAtipico();
+    if (!v.length) { $('stats').innerHTML = '<tr><td class="vacio">Sin expedientes finalizados en la selección.</td></tr>'; return; }
+    var p = function (q) { return AGG.percentil(v, q); };
+    var filas = [
+      ['Expedientes finalizados', num(v.length)],
+      ['Mínimo', dias(v[0])], ['Percentil 25', dias(p(25))],
+      ['Mediana', dias(p(50)), true], ['Promedio', dias(r.kpi.promedio)],
+      ['Percentil 75', dias(p(75))], ['Percentil 90', dias(p(90))], ['Máximo', dias(v[v.length - 1])],
+      ['Atípicos por duración total', num(at.n) + (f.sinAtipicos ? ', excluidos' : ', incluidos')]
+    ];
+    $('stats').innerHTML = '<tbody>' + filas.map(function (x) {
+      return '<tr' + (x[2] ? ' class="fuerte"' : '') + '><th scope="row">' + x[0] + '</th><td>' + x[1] + '</td></tr>';
+    }).join('') + '</tbody>';
+  }
+
+  function pintarCajas() {
+    var caja = $('cajas'), W = caja.clientWidth;
+    var cajas = D.etapas.map(function (e, i) { return { i: i, nombre: e.nombre, c: AGG.caja(r.boxplot[i]) }; })
+      .filter(function (x) { return x.c; });
+    var FILA = 56, ARR = 12, EJE = 30, H = Math.max(120, ARR + cajas.length * FILA + EJE);
+    caja.style.height = H + 'px';
+    if (!cajas.length || W < 120) { caja.innerHTML = '<p class="vacio">Sin etapas finalizadas en la selección.</p>'; pintarTablaCajas([]); return; }
+    var angosto = W < 560, PI = angosto ? 12 : Math.min(260, W * 0.3), PD = 64;
+    // Eje hasta el mayor bigote: los atípicos más allá se cuentan al margen.
+    var max = techo(Math.max.apply(null, cajas.map(function (x) { return x.c.bigoteSup; })) * 1.05);
+    var X = function (v) { return PI + Math.min(v, max) / max * (W - PI - PD); };
+    var o = [];
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (q) {
+      var xx = Math.round(X(max * q)) + 0.5;
+      o.push('<line x1="' + xx + '" x2="' + xx + '" y1="' + ARR + '" y2="' + (H - EJE) + '" stroke="var(--chart-grilla)"/>');
+      // La unidad va en el último rótulo del eje, no encima de él.
+      o.push(t(xx, H - 10, num(max * q) + (q === 1 ? ' días' : ''), 'text-anchor="' + (q === 1 ? 'end' : 'middle') + '" font-size="12" fill="var(--gris-60)"'));
+    });
+    cajas.forEach(function (x, k) {
+      var c = x.c, y0 = ARR + k * FILA, cy = y0 + (angosto ? 34 : FILA / 2), bh = 18;
+      var p = partir(x.nombre);
+      o.push('<g class="bp" tabindex="0" data-k="' + k + '">');
+      o.push('<rect x="0" y="' + y0 + '" width="' + W + '" height="' + FILA + '" fill="transparent"/>');
+      o.push(t(angosto ? PI : PI - 16, angosto ? y0 + 14 : cy + 4, (p[0] ? p[0] + '. ' : '') + p[1], (angosto ? '' : 'text-anchor="end" ') + 'font-size="13" fill="var(--negro-text)"'));
+      // Atípicos: una marca fina por valor distinto (con miles de casos, los
+      // puntos se tapan entre sí y no dicen más que la marca).
+      var vistos = {}, mas = 0;
+      c.fuera.forEach(function (v) {
+        if (v > max) { mas++; return; }
+        if (vistos[v]) return; vistos[v] = 1;
+        var xx = X(v).toFixed(1);
+        o.push('<line x1="' + xx + '" x2="' + xx + '" y1="' + (cy - 7) + '" y2="' + (cy + 7) + '" stroke="var(--gris-50)" stroke-width="1" opacity=".6"/>');
+      });
+      o.push('<line x1="' + X(c.bigoteInf).toFixed(1) + '" x2="' + X(c.bigoteSup).toFixed(1) + '" y1="' + cy + '" y2="' + cy + '" stroke="var(--gris-50)" stroke-width="2"/>');
+      [c.bigoteInf, c.bigoteSup].forEach(function (v) {
+        o.push('<line x1="' + X(v).toFixed(1) + '" x2="' + X(v).toFixed(1) + '" y1="' + (cy - 6) + '" y2="' + (cy + 6) + '" stroke="var(--gris-50)" stroke-width="2"/>');
+      });
+      var x1 = X(c.q1), x3 = X(c.q3);
+      o.push('<rect x="' + x1.toFixed(1) + '" y="' + (cy - bh / 2) + '" width="' + Math.max(2, x3 - x1).toFixed(1) + '" height="' + bh +
+        '" rx="3" fill="var(--secundario-base)" stroke="var(--primario-darken-1)" stroke-width="1.5"/>');
+      o.push('<line x1="' + X(c.mediana).toFixed(1) + '" x2="' + X(c.mediana).toFixed(1) + '" y1="' + (cy - bh / 2 - 3) + '" y2="' + (cy + bh / 2 + 3) +
+        '" stroke="var(--negro-text)" stroke-width="3" stroke-linecap="round"/>');
+      if (mas) o.push(t(W - PD + 8, cy + 4, '+' + num(mas) + ' →', 'font-size="12" fill="var(--gris-60)"'));
+      o.push('</g>');
+    });
+    caja.innerHTML = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Diagrama de caja de la duración por etapa. Los valores están en la tabla de datos.">' + o.join('') + '</svg>';
+    conTip(caja, '.bp', function (el) {
+      var x = cajas[+el.getAttribute('data-k')], c = x.c;
+      return [x.nombre, [
+        { valor: dias(c.mediana), rotulo: 'Mediana (días)', color: 'var(--negro-text)' },
+        { valor: dias(c.q1) + '–' + dias(c.q3), rotulo: '50 % central', color: 'var(--primario-darken-1)', caja: true },
+        { valor: dias(c.bigoteInf) + '–' + dias(c.bigoteSup), rotulo: 'Rango sin atípicos', color: 'var(--gris-50)' },
+        { valor: num(c.fuera.length), rotulo: 'atípicos · máx. ' + dias(c.max) + ' d' },
+        { valor: num(c.n), rotulo: 'ocurrencias finalizadas' }
+      ]];
+    });
+    pintarTablaCajas(cajas);
+  }
+  function pintarTablaCajas(cajas) {
+    tabla('tabla-cajas', [
+      { k: 'nombre', rot: 'Etapa', izq: true },
+      { k: 'n', rot: 'Ocurrencias', fmt: num },
+      { k: 'min', rot: 'Mínimo', fmt: dias }, { k: 'q1', rot: 'Q1', fmt: dias }, { k: 'mediana', rot: 'Mediana', fmt: dias },
+      { k: 'q3', rot: 'Q3', fmt: dias }, { k: 'bigoteSup', rot: 'Límite sin atípicos', fmt: dias },
+      { k: 'nFuera', rot: 'Atípicos', fmt: num }, { k: 'max', rot: 'Máximo', fmt: dias }
+    ], cajas.map(function (x) {
+      return { nombre: x.nombre, n: x.c.n, min: x.c.min, q1: x.c.q1, mediana: x.c.mediana, q3: x.c.q3, bigoteSup: x.c.bigoteSup, nFuera: x.c.fuera.length, max: x.c.max };
+    }), 'Ver tabla', 'Días por ocurrencia de etapa finalizada. Atípico: fuera de Q1 − 1,5 × RIC o Q3 + 1,5 × RIC en esta selección.');
+  }
+
+  // ==================================================================
+  // Página 3: evolución y territorio
+  // ==================================================================
+  var CENSURA = 0.9;   // bajo este % finalizado, la mediana del año todavía va a subir
+  var GY = null;
+  function pintarTendencia() {
+    var caja = $('tendencia'), W = caja.clientWidth, H = caja.clientHeight, s = r.anual, n = s.length;
+    $('y-sub').textContent = 'Cohortes por año de ingreso. La mediana es de los que ya terminaron: en los años recientes los ' +
+      'expedientes lentos siguen abiertos, así que su cifra va a subir. Línea punteada: menos del ' + Math.round(CENSURA * 100) +
+      ' % de la cohorte ha terminado.' + (s.length && s[n - 1].anio === ANIO_ACTUAL ? ' ' + ANIO_ACTUAL + ' está en curso.' : '');
+    if (!n || W < 80) { caja.innerHTML = '<p class="vacio">Sin expedientes en la selección.</p>'; GY = null; pintarTablaAnual(); return; }
+    var PI = 56, PD = 56, ARR = 30, EJE = 28, GAP = 44;
+    var util = H - ARR - GAP - EJE, H1 = Math.round(util * 0.45), H2 = util - H1, y1 = ARR, y2 = ARR + H1 + GAP;
+    var paso = (W - PI - PD) / n, cx = function (j) { return PI + paso * (j + 0.5); };
+    var maxM = techo(Math.max.apply(null, s.map(function (p) { return p.mediana || 0; })));
+    var maxB = techo(Math.max.apply(null, s.map(function (p) { return p.ingresados; })));
+    var yM = function (v) { return y1 + H1 - v / maxM * H1; };
+    var o = [];
+    function ejes(y0, alto, max) {
+      var vistos = {};
+      [1, 0.5, 0].forEach(function (q) {
+        var rot = num(max * q); if (vistos[rot]) return; vistos[rot] = true;
+        var yy = Math.round(y0 + alto - q * alto) + 0.5;
+        o.push('<line x1="' + PI + '" x2="' + (W - PD) + '" y1="' + yy + '" y2="' + yy + '" stroke="var(--chart-grilla)"/>');
+        o.push(t(PI - 8, yy + 4, rot, 'text-anchor="end" font-size="12" fill="var(--gris-60)"'));
+      });
+    }
+    ejes(y1, H1, maxM); ejes(y2, H2, maxB);
+    // Rótulo de panel corto en pantallas angostas: el largo se salía del gráfico.
+    var corto = W < 620;
+    o.push(t(PI, y1 - 14, corto ? 'Mediana, días' : 'Mediana de la duración total de los finalizados (días)', 'font-size="13" fill="var(--gris-60)"'));
+    o.push(t(PI, y2 - 14, corto ? 'Ingresados en el año' : 'Expedientes ingresados en el año: finalizados y en proceso', 'font-size="13" fill="var(--gris-60)"'));
+    // Línea: tramo sólido entre años con cohorte casi completa, punteado si no.
+    for (var j = 1; j < n; j++) {
+      var a = s[j - 1], b = s[j];
+      if (a.mediana == null || b.mediana == null) continue;
+      var cens = a.pctFin < CENSURA || b.pctFin < CENSURA;
+      o.push('<line x1="' + cx(j - 1).toFixed(1) + '" y1="' + yM(a.mediana).toFixed(1) + '" x2="' + cx(j).toFixed(1) + '" y2="' + yM(b.mediana).toFixed(1) +
+        '" stroke="var(--primario-darken-1)" stroke-width="2" stroke-linecap="round"' + (cens ? ' stroke-dasharray="5 4"' : '') + '/>');
+    }
+    s.forEach(function (p, k) {
+      if (p.mediana == null) return;
+      var cens = p.pctFin < CENSURA;
+      o.push('<circle cx="' + cx(k).toFixed(1) + '" cy="' + yM(p.mediana).toFixed(1) + '" r="4" fill="' + (cens ? 'var(--blanco-base)' : 'var(--primario-darken-1)') +
+        '" stroke="var(--primario-darken-1)" stroke-width="2"/>');
+    });
+    var ult = null;
+    for (var q = n - 1; q >= 0; q--) if (s[q].mediana != null) { ult = q; break; }
+    if (ult != null) o.push(t(cx(ult) + 10, yM(s[ult].mediana) + 4, dias(s[ult].mediana), 'font-size="13" font-weight="700" fill="var(--negro-text)"'));
+    // Barras apiladas: finalizados (teal, como en SUBSE) + en proceso (gris neutro).
+    var bw = Math.max(3, Math.min(36, paso - 10));
+    s.forEach(function (p, k) {
+      var x0 = +(cx(k) - bw / 2).toFixed(1), hf = p.finalizados / maxB * H2, hp = p.enProceso / maxB * H2, base = y2 + H2;
+      var parcial = p.anio === ANIO_ACTUAL ? ' opacity=".55"' : '';
+      if (hp > 0) o.push(barra(x0, +(base - hf - hp).toFixed(1), +bw.toFixed(1), +hp.toFixed(1), 'fill="var(--gris-30)"' + parcial));
+      // 2 px de superficie entre segmentos apilados.
+      if (hf > 0) o.push('<rect x="' + x0 + '" y="' + (base - hf).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(0, hf - (hp > 0 ? 0 : 0)).toFixed(1) +
+        '" fill="var(--chart-2)"' + parcial + '/>' + (hp > 0 ? '<rect x="' + x0 + '" y="' + (base - hf - 1).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="2" fill="var(--blanco-base)"/>' : ''));
+    });
+    var cada = Math.max(1, Math.ceil(n / Math.floor((W - PI - PD) / 44)));
+    s.forEach(function (p, k) {
+      if (k % cada && k !== n - 1) return;
+      o.push(t(cx(k), H - 8, p.anio + (p.anio === ANIO_ACTUAL ? '*' : ''), 'text-anchor="middle" font-size="12" fill="var(--gris-60)"'));
+    });
+    o.push('<line class="y-cruz" y1="' + (y1 - 4) + '" y2="' + (y2 + H2) + '" stroke="var(--gris-50)" visibility="hidden"/>');
+    caja.innerHTML = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Mediana de la duración total y expedientes ingresados, finalizados y en proceso por año de ingreso. Los valores están en la tabla de datos.">' + o.join('') + '</svg>';
+    GY = { n: n, PI: PI, paso: paso, cx: cx };
+    pintarTablaAnual();
+  }
+  function marcarAnio(j, ev) {
+    var p = r.anual[j], l = $('tendencia').querySelector('.y-cruz');
+    if (!p || !l) return;
+    l.setAttribute('x1', GY.cx(j)); l.setAttribute('x2', GY.cx(j)); l.setAttribute('visibility', 'visible');
+    tip(ev, 'Ingresados en ' + p.anio + (p.anio === ANIO_ACTUAL ? ' · año en curso' : ''), [
+      { valor: dias(p.mediana) + ' d', rotulo: 'Mediana' + (p.pctFin < CENSURA ? ' (cohorte incompleta)' : ''), color: 'var(--primario-darken-1)' },
+      { valor: dias(p.promedio) + ' d', rotulo: 'Promedio' },
+      { valor: num(p.ingresados), rotulo: 'Ingresados' },
+      { valor: num(p.finalizados), rotulo: 'Finalizados (' + pct(p.pctFin) + ')', color: 'var(--chart-2)', caja: true },
+      { valor: num(p.enProceso), rotulo: 'Siguen en proceso', color: 'var(--gris-30)', caja: true }
+    ]);
+  }
+  interactivo($('tendencia'), function () { return GY && GY.n; }, function (ev) {
+    var b = $('tendencia').getBoundingClientRect(), j = Math.floor((ev.clientX - b.left - GY.PI) / GY.paso);
+    return j >= 0 && j < GY.n ? j : -1;
+  }, marcarAnio, function (j) {
+    var b = $('tendencia').getBoundingClientRect();
+    return { clientX: b.left + GY.cx(j), clientY: b.top + 60 };
+  }, '.y-cruz');
+  function pintarTablaAnual() {
+    tabla('tabla-anual', [
+      { k: 'anio', rot: 'Año de ingreso', fmt: function (v) { return v + (v === ANIO_ACTUAL ? ' *' : ''); } },
+      { k: 'ingresados', rot: 'Ingresados', fmt: num }, { k: 'finalizados', rot: 'Finalizados', fmt: num },
+      { k: 'enProceso', rot: 'En proceso', fmt: num }, { k: 'pctFin', rot: '% finalizado', fmt: pct },
+      { k: 'mediana', rot: 'Mediana (días)', fmt: dias }, { k: 'promedio', rot: 'Promedio (días)', fmt: dias }
+    ], r.anual.slice().reverse(), 'Ver tabla', '* Año en curso. Duraciones de los finalizados' + (filtro().sinAtipicos ? ', sin atípicos' : '') + '.');
+  }
+
+  function pintarRegiones() {
+    var f = filtro(), lista = AGG.porRegion(D, f).sort(function (a, b) {
+      return (b.mediana == null) - (a.mediana == null) || (b.mediana || 0) - (a.mediana || 0);
+    });
+    var max = 0;
+    lista.forEach(function (x) { max = Math.max(max, x.mediana || 0, x.promedio || 0); });
+    max = techo(max);
+    var caja = $('regiones');
+    caja.classList.toggle('con-sel', f.region != null);
+    caja.innerHTML = lista.map(function (x) {
+      var pocos = x.nDur < MIN_REG, el = f.region === x.indice;
+      return '<button type="button" class="barra-fila' + (pocos ? ' pocos' : '') + '" data-i="' + x.indice + '" aria-pressed="' + el + '">' +
+        '<span class="barra-nom" title="' + esc(x.nombre) + '">' + esc(x.nombre) + '</span>' +
+        medida(x.mediana, x.promedio, max) +
+        '<span class="act-val"><b>' + dias(x.mediana) + '</b> <span>· ' + dias(x.promedio) + ' d</span></span></button>';
+    }).join('') || '<p class="vacio">Sin expedientes en la selección.</p>';
+    caja.onclick = function (ev) {
+      var b = ev.target.closest('.barra-fila'); if (!b) return;
+      var i = +b.getAttribute('data-i');
+      $('f-region').value = f.region === i ? '' : String(i);
+      cambio();
+    };
+    conTip(caja, '.barra-fila', function (el) {
+      var x = lista.filter(function (y) { return y.indice === +el.getAttribute('data-i'); })[0];
+      return [x.nombre, [
+        { valor: dias(x.mediana) + ' d', rotulo: 'Mediana', color: 'var(--primario-darken-1)', caja: true },
+        { valor: dias(x.promedio) + ' d', rotulo: 'Promedio', color: 'var(--negro-text)' },
+        { valor: num(x.ingresados), rotulo: 'Ingresados' },
+        { valor: num(x.finalizados), rotulo: 'Finalizados' + (x.nDur < MIN_REG ? ' · pocos para comparar' : '') },
+        { valor: num(x.enProceso), rotulo: 'En proceso' }
+      ]];
+    });
+    $('r-sub').innerHTML = 'Duración total de los finalizados, por región: <b>mediana</b> · promedio. Se calcula sin el filtro de región, ' +
+      'para comparar.<span class="pantalla"> Clic en una región para filtrar el panel.</span>';
+    tabla('tabla-reg', [
+      { k: 'nombre', rot: 'Región', izq: true },
+      { k: 'ingresados', rot: 'Ingresados', fmt: num }, { k: 'finalizados', rot: 'Finalizados', fmt: num },
+      { k: 'enProceso', rot: 'En proceso', fmt: num },
+      { k: 'mediana', rot: 'Mediana (días)', fmt: dias }, { k: 'promedio', rot: 'Promedio (días)', fmt: dias }
+    ], lista, 'Ver tabla');
+  }
+
+  // ---- gráficos con hover, toque y teclado (flechas) ----
+  function interactivo(caja, activo, indice, marcar, anclaTeclado, sel) {
+    var foco = -1;
+    var ocultar = function () {
+      var l = caja.querySelector(sel); if (l) l.setAttribute('visibility', 'hidden'); sinTip();
+    };
+    ['pointermove', 'pointerdown'].forEach(function (tipo) {
+      caja.addEventListener(tipo, function (ev) {
+        if (!activo()) return;
+        var j = indice(ev);
+        if (j < 0) { ocultar(); return; }
+        foco = j; marcar(j, ev);
+      });
+    });
+    caja.addEventListener('pointerleave', function (ev) { if (ev.pointerType !== 'touch') ocultar(); });
+    caja.addEventListener('keydown', function (ev) {
+      var n = activo();
+      if (!n || (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight')) return;
+      ev.preventDefault();
+      foco = Math.max(0, Math.min(n - 1, (foco < 0 ? (ev.key === 'ArrowRight' ? -1 : n) : foco) + (ev.key === 'ArrowRight' ? 1 : -1)));
+      marcar(foco, anclaTeclado(foco));
+    });
+    caja.addEventListener('blur', ocultar);
+  }
+
+  // ---- estado de los datos ----
+  function pintarEstado() {
+    var diasViejo = Math.floor((Date.now() - new Date(IDX.generado)) / 86400000), html = '', clase = '';
+    var c = D.corte || {}, ult = c.ultimoMovimiento;
+    if (diasViejo > DIAS_FRESCO) {
+      clase = 'estado--alerta';
+      html = ico('alerta') + 'Datos de hace ' + diasViejo + ' días: la actualización diaria no corrió';
+    } else if (IDX.origen !== 'base') {
+      html = ico('info') + 'Datos desde el Excel de la UPCG, no desde la base';
+    } else if (c.anios) {
+      // Trámite con ventana acortada (Saneamiento): decirlo donde se ve.
+      html = ico('info') + 'Últimos ' + c.anios + ' años (ingresos desde ' + dmy(c.desde) + ') · último movimiento ' + dmy(ult);
+    } else if (ult) {
+      html = ico('info') + 'Último movimiento registrado: ' + dmy(ult);
+    }
+    $('estado').className = 'estado ' + clase;
+    $('estado').innerHTML = html;
+  }
+
+  // ---- orquestación ----
+  function pintar() {
+    r = AGG.calcular(D, filtro());
+    pintarEstado();
+    $('f-etapa').hidden = S.etapa == null;
+    if (S.etapa != null) $('f-etapa-txt').textContent = 'Pasaron por: ' + partir(nombreEtapa(S.etapa))[1];
+    var todo = informeActivo;
+    if (S.pag === 'proceso' || todo) { pintarKpis(); pintarEtapas(); pintarActividades(); }
+    if (S.pag === 'distribucion' || todo) { pintarHistograma(); pintarStats(); pintarCajas(); }
+    if (S.pag === 'evolucion' || todo) { pintarTendencia(); pintarRegiones(); }
+  }
+  function cambio() { guardarHash(); sinTip(); pintar(); contarFiltros(); }
+
+  function irA(pag) {
+    S.pag = pag;
+    ['proceso', 'distribucion', 'evolucion'].forEach(function (p) { $('p-' + p).hidden = p !== pag; });
+    Array.prototype.forEach.call(document.querySelectorAll('.pag'), function (b) {
+      if (b.getAttribute('data-pag') === pag) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    cambio();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.pag'), function (b) {
+    b.addEventListener('click', function () { irA(b.getAttribute('data-pag')); });
+  });
+
+  // Elegir etapa: abre sus actividades. Filtrar el panel es otra decisión.
+  $('etapas-caja').addEventListener('click', function (ev) {
+    var b = ev.target.closest('.nodo[data-etapa]'); if (!b) return;
+    var i = +b.getAttribute('data-etapa');
+    S.sel = S.sel === i ? null : i;
+    cambio();
+    var n = $('etapas-caja').querySelector('.nodo[data-etapa="' + i + '"]'); if (n) n.focus();
+  });
+  $('a-todas').addEventListener('click', function () { S.sel = null; cambio(); });
+  $('a-filtrar').addEventListener('click', function () { S.etapa = S.etapa === S.sel ? null : S.sel; cambio(); });
+  $('f-etapa-quitar').addEventListener('click', function () { S.etapa = null; cambio(); });
+
+  ['f-region', 'f-desde', 'f-hasta', 'f-estado', 'f-atip'].forEach(function (id) { $(id).addEventListener('change', cambio); });
+  // Cambiar de trámite: se carga su archivo y el panel parte de cero con él
+  // (otro universo de fechas, regiones, etapas y actividades).
+  $('f-tramite').addEventListener('change', function () {
+    var s = $('f-tramite').value;
+    cargarTramite(s, function (payload) {
+      if ($('f-tramite').value !== s) return;   // se cambió otra vez mientras cargaba
+      iniciarTramite(payload);
+      $('f-estado').value = 'todos'; $('f-atip').value = 'con';
+      cambio();
+    });
+  });
+  $('f-reset').addEventListener('click', function () {
+    $('f-region').value = ''; $('f-desde').value = DESDE0; $('f-hasta').value = HASTA0;
+    $('f-estado').value = 'todos'; $('f-atip').value = 'con'; S.etapa = null; S.sel = null;
+    cambio();
+  });
+
+  // Bajo 1440 px el menú arranca como riel de íconos (como SUBSE).
+  var anchoRiel = window.matchMedia('(max-width:1439px)'), menuElegido = false;
+  function ponerMenu(cerrado) {
+    var b = $('menu-alt');
+    $('app').classList.toggle('cerrado', cerrado);
+    b.setAttribute('aria-expanded', !cerrado);
+    b.setAttribute('aria-label', cerrado ? 'Expandir panel' : 'Retraer panel');
+    b.innerHTML = '<svg class="ico ico--24" viewBox="0 0 24 24" aria-hidden="true">' + ICONOS[cerrado ? 'menu' : 'menu_open'] + '</svg>';
+  }
+  $('menu-alt').addEventListener('click', function () { menuElegido = true; ponerMenu(!$('app').classList.contains('cerrado')); });
+  ponerMenu(anchoRiel.matches);
+  anchoRiel.addEventListener('change', function (e) { if (!menuElegido) ponerMenu(e.matches); });
+
+  // Filtros en celular: hoja desde abajo, como SUBSE.
+  function abrirFiltros(abrir) {
+    $('filtros').classList.toggle('abierto', abrir);
+    $('f-abrir').setAttribute('aria-expanded', abrir);
+    document.documentElement.style.overflow = abrir ? 'hidden' : '';
+    (abrir ? $('f-region') : $('f-abrir')).focus();
+  }
+  $('f-abrir').addEventListener('click', function () { abrirFiltros(true); });
+  $('f-cerrar').addEventListener('click', function () { abrirFiltros(false); });
+  $('f-listo').addEventListener('click', function () { abrirFiltros(false); });
+  $('filtros').addEventListener('click', function (ev) { if (ev.target === this && this.classList.contains('abierto')) abrirFiltros(false); });
+  $('filtros').addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && this.classList.contains('abierto')) abrirFiltros(false); });
+  window.matchMedia('(max-width:760px)').addEventListener('change', function (e) {
+    if (!e.matches && $('filtros').classList.contains('abierto')) abrirFiltros(false);
+  });
+  function contarFiltros() {
+    var f = filtro();
+    var n = (f.region != null) + (f.desde !== DESDE0 || f.hasta !== HASTA0) + (f.estado !== 'todos') + f.sinAtipicos + (S.etapa != null);
+    $('f-cuenta').textContent = n || '';
+    $('f-abrir').setAttribute('aria-label', 'Filtros' + (n ? ', ' + n + ' aplicados' : ''));
+  }
+
+  // Metodología: el texto de procesar.py, tal cual (lo llena iniciarTramite).
+  $('informe-metodo').insertAdjacentHTML('beforeend', '<dl></dl>');
+  $('abrir-metodo').addEventListener('click', function () { $('metodo').showModal(); });
+  $('cerrar-metodo').addEventListener('click', function () { $('metodo').close(); });
+
+  // ---- Exportar CSV: las tablas de la página visible ----
+  function textoFiltros() {
+    var f = filtro();
+    return 'Trámite: ' + D.tramite + ' · Región: ' + $('f-region').selectedOptions[0].text +
+      ' · Ingreso: ' + dmy(f.desde) + ' a ' + dmy(f.hasta) +
+      ' · Estado: ' + $('f-estado').selectedOptions[0].text + ' · Atípicos: ' + $('f-atip').selectedOptions[0].text.toLowerCase() +
+      (S.etapa != null ? ' · Pasaron por: ' + nombreEtapa(S.etapa) : '');
+  }
+  $('exportar').addEventListener('click', function () {
+    var celda = function (v) { v = v == null ? '' : typeof v === 'number' ? String(Math.round(v * 100) / 100).replace('.', ',') : String(v); return /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    var l = ['Filtros;' + celda(textoFiltros()), 'Datos;' + celda('actualizados ' + fechaHora(D.generado))];
+    var bloque = function (titulo, cols, filas) {
+      l.push('', celda(titulo), cols.map(function (c) { return celda(c[1]); }).join(';'));
+      filas.forEach(function (f) { l.push(cols.map(function (c) { return celda(f[c[0]]); }).join(';')); });
+    };
+    if (S.pag === 'proceso') {
+      bloque('Etapas', [['etapa', 'Etapa'], ['mediana', 'Mediana (días)'], ['duracion', 'Promedio (días)'], ['nObservaciones', 'Ocurrencias finalizadas'],
+        ['finalizados', 'Expedientes finalizados'], ['enProceso', 'En proceso'], ['recurrencia', 'Recurrencia']], r.etapas);
+      bloque('Actividades', [['etapa', 'Etapa'], ['actividad', 'Actividad'], ['mediana', 'Mediana (días)'], ['duracion', 'Promedio (días)'],
+        ['nObservaciones', 'Ocurrencias finalizadas'], ['finalizados', 'Expedientes finalizados'], ['enProceso', 'En proceso']], r.actividades);
+    } else if (S.pag === 'distribucion') {
+      var h = AGG.histograma(r.histograma, 36), filas = [];
+      if (h) h.cuenta.forEach(function (n, j) { filas.push({ d: h.desde + j * h.ancho, a: h.desde + (j + 1) * h.ancho - 1, n: n }); });
+      if (h && h.cola) filas.push({ d: h.tope, a: 'más', n: h.cola });
+      bloque('Duración total de los finalizados', [['d', 'Desde (días)'], ['a', 'Hasta (días)'], ['n', 'Expedientes']], filas);
+      bloque('Dispersión por etapa', [['nombre', 'Etapa'], ['n', 'Ocurrencias'], ['q1', 'Q1'], ['mediana', 'Mediana'], ['q3', 'Q3'], ['max', 'Máximo']],
+        D.etapas.map(function (e, i) { var c = AGG.caja(r.boxplot[i]); return c ? Object.assign({ nombre: e.nombre }, c) : null; }).filter(Boolean));
+    } else {
+      bloque('Por año de ingreso', [['anio', 'Año de ingreso'], ['ingresados', 'Ingresados'], ['finalizados', 'Finalizados'], ['enProceso', 'En proceso'],
+        ['mediana', 'Mediana (días)'], ['promedio', 'Promedio (días)']], r.anual);
+      bloque('Por región', [['nombre', 'Región'], ['ingresados', 'Ingresados'], ['finalizados', 'Finalizados'], ['enProceso', 'En proceso'],
+        ['mediana', 'Mediana (días)'], ['promedio', 'Promedio (días)']], AGG.porRegion(D, filtro()));
+    }
+    var url = URL.createObjectURL(new Blob(['﻿' + l.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+    var a = document.createElement('a');
+    a.href = url; a.download = 'tiempos_' + $('f-tramite').value + '_' + S.pag + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  });
+
+  // Los gráficos se dibujan a la medida de su caja: se redibujan si cambia.
+  if (window.ResizeObserver) {
+    var medidas = {};
+    [['histograma', pintarHistograma], ['cajas', pintarCajas], ['tendencia', pintarTendencia]].forEach(function (x) {
+      new ResizeObserver(function () {
+        var c = $(x[0]);
+        if (r && c.clientWidth && c.clientWidth !== medidas[x[0]]) { medidas[x[0]] = c.clientWidth; x[1](); }
+      }).observe($(x[0]));
+    });
+  }
+  if (document.fonts) document.fonts.ready.then(function () { if (r) pintar(); });
+
+  // ---- Exportar PDF: informe imprimible (como SUBSE) ----
+  var informeActivo = false, tituloPrevio = document.title, abiertas = {};
+  function entrarInforme(secs) {
+    var tiene = function (s) { return secs.indexOf(s) >= 0; };
+    informeActivo = true;
+    document.body.classList.add('informe');
+    ['proceso', 'distribucion', 'evolucion'].forEach(function (p) { $('p-' + p).hidden = false; });
+    $('informe-metodo').hidden = false;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-sec]'), function (el) {
+      el.classList.toggle('fuera', !tiene(el.getAttribute('data-sec')));
+    });
+    // Una tarjeta con tabla puede ir sin su gráfico, solo con la tabla.
+    Array.prototype.forEach.call(document.querySelectorAll('[data-tabla]'), function (el) {
+      var tab = el.getAttribute('data-tabla'), sec = el.getAttribute('data-sec');
+      abiertas[tab] = $(tab).open; $(tab).open = true;
+      el.classList.toggle('fuera', !tiene(sec) && !tiene(tab));
+      el.classList.toggle('solo-tabla', !tiene(sec) && tiene(tab));
+    });
+    ['proceso', 'distribucion', 'evolucion'].forEach(function (p) {
+      var pag = $('p-' + p);
+      pag.classList.toggle('fuera', !pag.querySelector('[data-sec]:not(.fuera)'));
+    });
+    pintar();
+    $('i-filtros').innerHTML = '<b>Filtros:</b> ';
+    $('i-filtros').appendChild(document.createTextNode(textoFiltros()));
+    $('i-datos').innerHTML = '<b>Datos:</b> actualizados el ' + fechaHora(IDX.generado) + ' · último movimiento ' + dmy(D.corte && D.corte.ultimoMovimiento) +
+      (D.corte && D.corte.anios ? ' · ventana de ' + D.corte.anios + ' años' : '') +
+      ' · informe generado el ' + fechaHora(new Date()) + (IDX.origen !== 'base' ? ' · <b>desde el Excel, no la base</b>' : '');
+    document.title = 'Informe tiempos de tramitación ' + D.tramite + ' ' + dmy(filtro().hasta);
+  }
+  function salirInforme() {
+    if (!informeActivo) return;
+    informeActivo = false;
+    document.body.classList.remove('informe');
+    document.title = tituloPrevio;
+    $('informe-metodo').hidden = true;
+    Object.keys(abiertas).forEach(function (k) { $(k).open = abiertas[k]; });
+    Array.prototype.forEach.call(document.querySelectorAll('.fuera, .solo-tabla'), function (el) { el.classList.remove('fuera', 'solo-tabla'); });
+    irA(S.pag);
+  }
+  var PDF_PAGINA = { proceso: ['kpis', 'etapas', 'actividades'], distribucion: ['histograma', 'resumen-dist', 'cajas'], evolucion: ['tendencia', 'regiones'] };
+  window.addEventListener('beforeprint', function () { if (!informeActivo) entrarInforme(PDF_PAGINA[S.pag]); });
+  window.addEventListener('afterprint', salirInforme);
+
+  var formPdf = $('form-pdf');
+  function elegidas() {
+    return Array.prototype.filter.call(formPdf.elements.sec, function (c) { return c.checked; }).map(function (c) { return c.value; });
+  }
+  $('pdf').addEventListener('click', function () { $('generar-pdf').disabled = !elegidas().length; $('dlg-pdf').showModal(); });
+  formPdf.addEventListener('change', function () { $('generar-pdf').disabled = !elegidas().length; });
+  $('cerrar-pdf').addEventListener('click', function () { $('dlg-pdf').close(); });
+  $('cancelar-pdf').addEventListener('click', function () { $('dlg-pdf').close(); });
+  formPdf.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var secs = elegidas(); if (!secs.length) return;
+    $('dlg-pdf').close();
+    entrarInforme(secs);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { window.print(); }); });
+  });
+
+  // Arranque: el índice ya está; se elige el trámite (hash, o Arriendo, o el
+  // primero) y recién ahí se carga su archivo y se dibuja.
+  $('f-tramite').value = filaTramite('arriendo').slug;
+  leerHash();
+  cargarTramite($('f-tramite').value, function (payload) {
+    iniciarTramite(payload);
+    leerHash();          // los filtros del hash mandan sobre los valores por defecto
+    irA(S.pag);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { $('app').classList.remove('inicio'); }); });
+  });
+})();
+</script>
+</body>
+</html>

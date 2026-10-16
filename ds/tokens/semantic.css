@@ -1,0 +1,56 @@
+/* Semantic aliases over the raw Figma variables in fig-tokens.css.
+   Prefer these in product code; the raw --primario-* / --gris-* scales stay available. */
+:root{
+  --surface-page:var(--blanco-base);
+  --surface-card:var(--blanco-base);
+  --surface-subtle:var(--gris-5);
+  --surface-inverse:var(--dark-base);
+  --surface-brand:var(--primario-darken-1);
+  --surface-brand-soft:var(--secundario-base);
+
+  --text-body:var(--negro-text);
+  --text-strong:var(--negro-base);
+  --text-muted:var(--gris-60);
+  --text-on-brand:var(--blanco-base);
+  --text-disabled:var(--gris-40);
+
+  --border-default:var(--gris-20);
+  --border-subtle:var(--gris-10);
+  --border-strong:var(--gris-50);
+  --border-brand:var(--primario-base);
+
+  --action-primary-bg:var(--primario-darken-1);
+  --action-primary-bg-hover:var(--primario-darken-2);
+  --action-primary-bg-active:var(--primario-darken-3);
+  --action-primary-fg:var(--blanco-base);
+  --action-secondary-fg:var(--primario-darken-1);
+  --action-disabled-bg:var(--gris-20);
+  --action-disabled-fg:var(--gris-50);
+
+  --feedback-success:var(--exito-darken-2);
+  --feedback-success-soft:var(--exito-lighten-5);
+  --feedback-error:var(--error-darken-2);
+  --feedback-error-soft:var(--error-lighten-5);
+  --feedback-warning:var(--advertencia-darken-2);
+  --feedback-warning-soft:var(--advertencia-lighten-5);
+  --feedback-info:var(--info-darken-2);
+  --feedback-info-soft:var(--info-lighten-5);
+
+  --chart-1:var(--visualizaci-ndata-cualitativa-graph-01);
+  --chart-2:var(--visualizaci-ndata-cualitativa-graph-02);
+  --chart-3:var(--visualizaci-ndata-cualitativa-graph-03);
+  --chart-4:var(--visualizaci-ndata-cualitativa-graph-04);
+  --chart-5:var(--visualizaci-ndata-cualitativa-graph-05);
+  --chart-6:var(--visualizaci-ndata-cualitativa-graph-06);
+
+  /* Presentation / institutional palette (from the gobCL PowerPoint masters) */
+  --deck-navy:#25368C;
+  --deck-navy-deep:#1B2A6B;
+  --deck-blue:#0F69C4;
+  --deck-red:#FF2C3F;
+  --deck-body:#0C4581;
+}
+a{color:var(--link-default);text-decoration:underline}
+a:hover{color:var(--link-hover)}
+a:visited{color:var(--link-visited)}
+a:active{color:var(--link-active)}
