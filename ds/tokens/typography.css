@@ -1,0 +1,41 @@
+/* Type scale transcribed from the UI Kit "Tipografías / Encabezados" frames.
+   Desktop and mobile sizes are separate tokens — the kit specifies both. */
+:root{
+  --font-brand:"gobCL",Arial,Helvetica,sans-serif;
+  --font-sans:"Roboto",Arial,Helvetica,sans-serif;
+  --font-slab:"Roboto Slab","Roboto",Georgia,serif;
+  --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  --fw-light:300; /* @kind font */
+  --fw-regular:400; /* @kind font */--fw-medium:500; /* @kind font */--fw-bold:700; /* @kind font */--fw-heavy:900; /* @kind font */
+  --lh-tight:1.2; /* @kind font */
+  --lh-base:1.5; /* @kind font */
+
+  /* Desktop headings — Medium 500, line-height 1.5 */
+  --text-heading-xl:44px;
+  --text-heading-l:36px;
+  --text-heading-m:31px;
+  --text-heading-s:19px;
+  /* Mobile headings */
+  --text-heading-l-mobile:24px;
+  --text-heading-m-mobile:18px;
+  --text-heading-s-mobile:16px;
+
+  /* Desktop body */
+  --text-body-l:24px;
+  --text-body-m:19px;
+  --text-body-s:16px;
+  --text-body-xs:14px;
+  /* Mobile body */
+  --text-body-m-mobile:16px;
+  --text-body-s-mobile:14px;
+  --text-body-xs-mobile:12px;
+
+  /* Interactive text */
+  --text-button:19px;
+  --text-button-small:16px;
+  --text-link:19px;
+  --text-link-small:16px;
+  --text-caption:12px;
+  --text-overline:11px;
+}

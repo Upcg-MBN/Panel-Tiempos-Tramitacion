@@ -1,0 +1,311 @@
+/* Generated from Figma Variables. First mode = :root default.
+   FLOAT tokens are unitless — multiply by 1px in calc() where a length is needed. */
+
+:root {
+  --accent-base-2: rgb(255,71,49); /* @kind color */
+  --accent-base: rgb(255,71,49); /* @kind color */
+  --accent-darken-1-2: rgb(246,62,50); /* @kind color */
+  --accent-darken-1: rgb(246,62,50); /* @kind color */
+  --accent-darken-2-2: rgb(228,51,44); /* @kind color */
+  --accent-darken-2: rgb(228,51,44); /* @kind color */
+  --accent-darken-3-2: rgb(215,44,37); /* @kind color */
+  --accent-darken-3: rgb(215,44,37); /* @kind color */
+  --accent-darken-4-2: rgb(200,32,24); /* @kind color */
+  --accent-darken-4: rgb(200,32,24); /* @kind color */
+  --accent-lighten-1-2: rgb(255,88,79); /* @kind color */
+  --accent-lighten-1: rgb(255,88,79); /* @kind color */
+  --accent-lighten-2-2: rgb(243,120,116); /* @kind color */
+  --accent-lighten-2: rgb(243,120,116); /* @kind color */
+  --accent-lighten-3-2: rgb(250,158,155); /* @kind color */
+  --accent-lighten-3: rgb(250,158,155); /* @kind color */
+  --accent-lighten-4-2: rgb(255,207,211); /* @kind color */
+  --accent-lighten-4: rgb(255,207,211); /* @kind color */
+  --accent-lighten-5-2: rgb(255,236,239); /* @kind color */
+  --accent-lighten-5: rgb(255,236,239); /* @kind color */
+  --advertencia-base-2: rgb(255,87,34); /* @kind color */
+  --advertencia-base: rgb(255,87,34); /* @kind color */
+  --advertencia-darken-1-2: rgb(244,81,30); /* @kind color */
+  --advertencia-darken-1: rgb(244,81,30); /* @kind color */
+  --advertencia-darken-2-2: rgb(230,74,25); /* @kind color */
+  --advertencia-darken-2: rgb(230,74,25); /* @kind color */
+  --advertencia-darken-3-2: rgb(216,67,21); /* @kind color */
+  --advertencia-darken-3: rgb(216,67,21); /* @kind color */
+  --advertencia-darken-4-2: rgb(191,54,12); /* @kind color */
+  --advertencia-darken-4: rgb(191,54,12); /* @kind color */
+  --advertencia-lighten-1-2: rgb(255,112,67); /* @kind color */
+  --advertencia-lighten-1: rgb(255,112,67); /* @kind color */
+  --advertencia-lighten-2-2: rgb(255,138,101); /* @kind color */
+  --advertencia-lighten-2: rgb(255,138,101); /* @kind color */
+  --advertencia-lighten-3-2: rgb(255,171,145); /* @kind color */
+  --advertencia-lighten-3: rgb(255,171,145); /* @kind color */
+  --advertencia-lighten-4-2: rgb(255,204,188); /* @kind color */
+  --advertencia-lighten-4: rgb(255,204,188); /* @kind color */
+  --advertencia-lighten-5-2: rgb(251,233,231); /* @kind color */
+  --advertencia-lighten-5: rgb(251,233,231); /* @kind color */
+  --background-button: var(--primario-darken-1); /* @kind color */
+  --blanco-base-2: rgb(255,255,255); /* @kind color */
+  --blanco-base: rgb(255,255,255); /* @kind color */
+  --blanco-white-26-2: rgba(255,255,255,0.26); /* @kind color */
+  --blanco-white-26: rgba(255,255,255,0.26); /* @kind color */
+  --blanco-white-78-2: rgba(255,255,255,0.78); /* @kind color */
+  --blanco-white-78: rgba(255,255,255,0.78); /* @kind color */
+  --border-radius-0-2: 0;
+  --border-radius-0: 0;
+  --border-radius-l-2: 16;
+  --border-radius-l: 16;
+  --border-radius-m-2: 8;
+  --border-radius-m: 8;
+  --border-radius-s-2: 4;
+  --border-radius-s: 4;
+  --border-radius-xl-2: 24;
+  --border-radius-xl: 24;
+  --color-button-color-bk-button-default: var(--primario-darken-1-2); /* @kind color */
+  --color-button-color-bk-button-hover: var(--primario-darken-2-2); /* @kind color */
+  --color-button-color-text-button-default: var(--blanco-base-2); /* @kind color */
+  --color-text-color-text-link: var(--link-default-2); /* @kind color */
+  --color-text-color-text: var(--negro-text-2); /* @kind color */
+  --contrast-base: rgb(98,90,246); /* @kind color */
+  --contrast-light: rgb(216,215,250); /* @kind color */
+  --dark-base-2: rgb(9,32,57); /* @kind color */
+  --dark-base: rgb(9,32,57); /* @kind color */
+  --dark-darken-1-2: rgb(0,8,36); /* @kind color */
+  --dark-darken-1: rgb(0,8,36); /* @kind color */
+  --dark-darken-2-2: rgb(0,0,15); /* @kind color */
+  --dark-darken-2: rgb(0,0,15); /* @kind color */
+  --dark-lighten-1-2: rgb(34,53,80); /* @kind color */
+  --dark-lighten-1: rgb(34,53,80); /* @kind color */
+  --dark-lighten-2-2: rgb(58,76,104); /* @kind color */
+  --dark-lighten-2: rgb(58,76,104); /* @kind color */
+  --dark-lighten-3-2: rgb(82,99,129); /* @kind color */
+  --dark-lighten-3: rgb(82,99,129); /* @kind color */
+  --dark-lighten-4-2: rgb(107,124,156); /* @kind color */
+  --dark-lighten-4: rgb(107,124,156); /* @kind color */
+  --dark-lighten-5-2: rgb(133,150,182); /* @kind color */
+  --dark-lighten-5: rgb(133,150,182); /* @kind color */
+  --error-base-2: rgb(251,59,59); /* @kind color */
+  --error-base: rgb(251,59,59); /* @kind color */
+  --error-darken-1-2: rgb(236,49,58); /* @kind color */
+  --error-darken-1: rgb(236,49,58); /* @kind color */
+  --error-darken-2-2: rgb(211,47,47); /* @kind color */
+  --error-darken-2: rgb(211,47,47); /* @kind color */
+  --error-darken-3-2: rgb(205,30,44); /* @kind color */
+  --error-darken-3: rgb(205,30,44); /* @kind color */
+  --error-darken-4-2: rgb(190,10,31); /* @kind color */
+  --error-darken-4: rgb(190,10,31); /* @kind color */
+  --error-lighten-1-2: rgb(245,78,83); /* @kind color */
+  --error-lighten-1: rgb(245,78,83); /* @kind color */
+  --error-lighten-2-2: rgb(233,113,117); /* @kind color */
+  --error-lighten-2: rgb(233,113,117); /* @kind color */
+  --error-lighten-3-2: rgb(242,153,156); /* @kind color */
+  --error-lighten-3: rgb(242,153,156); /* @kind color */
+  --error-lighten-4-2: rgb(255,205,210); /* @kind color */
+  --error-lighten-4: rgb(255,205,210); /* @kind color */
+  --error-lighten-5-2: rgb(255,235,239); /* @kind color */
+  --error-lighten-5: rgb(255,235,239); /* @kind color */
+  --exito-base-2: rgb(76,175,80); /* @kind color */
+  --exito-base: rgb(76,175,80); /* @kind color */
+  --exito-darken-1-2: rgb(67,160,71); /* @kind color */
+  --exito-darken-1: rgb(67,160,71); /* @kind color */
+  --exito-darken-2-2: rgb(56,142,60); /* @kind color */
+  --exito-darken-2: rgb(56,142,60); /* @kind color */
+  --exito-darken-3-2: rgb(46,125,50); /* @kind color */
+  --exito-darken-3: rgb(46,125,50); /* @kind color */
+  --exito-darken-4-2: rgb(27,94,32); /* @kind color */
+  --exito-darken-4: rgb(27,94,32); /* @kind color */
+  --exito-lighten-1-2: rgb(102,187,106); /* @kind color */
+  --exito-lighten-1: rgb(102,187,106); /* @kind color */
+  --exito-lighten-2-2: rgb(129,199,132); /* @kind color */
+  --exito-lighten-2: rgb(129,199,132); /* @kind color */
+  --exito-lighten-3-2: rgb(165,214,167); /* @kind color */
+  --exito-lighten-3: rgb(165,214,167); /* @kind color */
+  --exito-lighten-4-2: rgb(200,230,201); /* @kind color */
+  --exito-lighten-4: rgb(200,230,201); /* @kind color */
+  --exito-lighten-5-2: rgb(232,245,233); /* @kind color */
+  --exito-lighten-5: rgb(232,245,233); /* @kind color */
+  --focus-base-2: rgb(255,190,92); /* @kind color */
+  --focus-base: rgb(255,190,92); /* @kind color */
+  --focus-button: var(--focus-base); /* @kind color */
+  --focus-text-2: rgb(55,55,55); /* @kind color */
+  --focus-text: rgb(55,55,55); /* @kind color */
+  --font-sobre-primario: var(--blanco-base); /* @kind color */
+  --gris-10-2: rgb(230,230,230); /* @kind color */
+  --gris-10: rgb(230,230,230); /* @kind color */
+  --gris-20-2: rgb(204,204,204); /* @kind color */
+  --gris-20: rgb(204,204,204); /* @kind color */
+  --gris-30-2: rgb(179,179,179); /* @kind color */
+  --gris-30: rgb(179,179,179); /* @kind color */
+  --gris-40-2: rgb(153,153,153); /* @kind color */
+  --gris-40: rgb(153,153,153); /* @kind color */
+  --gris-5-2: rgb(242,242,242); /* @kind color */
+  --gris-50-2: rgb(128,128,128); /* @kind color */
+  --gris-50: rgb(128,128,128); /* @kind color */
+  --gris-5: rgb(242,242,242); /* @kind color */
+  --gris-60-2: rgb(102,102,102); /* @kind color */
+  --gris-60: rgb(102,102,102); /* @kind color */
+  --gris-70-2: rgb(77,77,77); /* @kind color */
+  --gris-70: rgb(77,77,77); /* @kind color */
+  --gris-80-2: rgb(51,51,51); /* @kind color */
+  --gris-80: rgb(51,51,51); /* @kind color */
+  --gris-90-2: rgb(26,26,26); /* @kind color */
+  --gris-90: rgb(26,26,26); /* @kind color */
+  --icon-text-button: var(--blanco-base); /* @kind color */
+  --info-base-2: rgb(33,150,243); /* @kind color */
+  --info-base: rgb(33,150,243); /* @kind color */
+  --info-darken-1-2: rgb(30,136,229); /* @kind color */
+  --info-darken-1: rgb(30,136,229); /* @kind color */
+  --info-darken-2-2: rgb(25,118,210); /* @kind color */
+  --info-darken-2: rgb(25,118,210); /* @kind color */
+  --info-darken-3-2: rgb(21,101,192); /* @kind color */
+  --info-darken-3: rgb(21,101,192); /* @kind color */
+  --info-darken-4-2: rgb(13,71,161); /* @kind color */
+  --info-darken-4: rgb(13,71,161); /* @kind color */
+  --info-lighten-1-2: rgb(66,165,245); /* @kind color */
+  --info-lighten-1: rgb(66,165,245); /* @kind color */
+  --info-lighten-2-2: rgb(100,181,246); /* @kind color */
+  --info-lighten-2: rgb(100,181,246); /* @kind color */
+  --info-lighten-3-2: rgb(144,202,249); /* @kind color */
+  --info-lighten-3: rgb(144,202,249); /* @kind color */
+  --info-lighten-4-2: rgb(187,222,251); /* @kind color */
+  --info-lighten-4: rgb(187,222,251); /* @kind color */
+  --info-lighten-5-2: rgb(227,242,253); /* @kind color */
+  --info-lighten-5: rgb(227,242,253); /* @kind color */
+  --link-active-2: rgb(55,55,55); /* @kind color */
+  --link-active: rgb(55,55,55); /* @kind color */
+  --link-default-2: rgb(29,112,184); /* @kind color */
+  --link-default: rgb(29,112,184); /* @kind color */
+  --link-hover-2: rgb(0,48,120); /* @kind color */
+  --link-hover: rgb(0,48,120); /* @kind color */
+  --link-visited-2: rgb(76,44,146); /* @kind color */
+  --link-visited: rgb(76,44,146); /* @kind color */
+  --negro-base-2: rgb(17,17,17); /* @kind color */
+  --negro-base: rgb(17,17,17); /* @kind color */
+  --negro-black-12-2: rgba(0,0,0,0.12); /* @kind color */
+  --negro-black-12: rgba(0,0,0,0.12); /* @kind color */
+  --negro-black-26-2: rgba(0,0,0,0.26); /* @kind color */
+  --negro-black-26: rgba(0,0,0,0.26); /* @kind color */
+  --negro-black-54-2: rgba(0,0,0,0.54); /* @kind color */
+  --negro-black-54: rgba(0,0,0,0.54); /* @kind color */
+  --negro-black-87-2: rgba(0,0,0,0.87); /* @kind color */
+  --negro-black-87: rgba(0,0,0,0.87); /* @kind color */
+  --negro-text-2: rgb(55,55,55); /* @kind color */
+  --negro-text-3: rgb(55,55,55); /* @kind color */
+  --negro-text: rgb(55,55,55); /* @kind color */
+  --primario-base-2: rgb(15,105,196); /* @kind color */
+  --primario-base: rgb(15,105,196); /* @kind color */
+  --primario-darken-1-2: rgb(0,81,168); /* @kind color */
+  --primario-darken-1: rgb(0,81,168); /* @kind color */
+  --primario-darken-2-2: rgb(0,59,141); /* @kind color */
+  --primario-darken-2: rgb(0,59,141); /* @kind color */
+  --primario-darken-3-2: rgb(0,38,115); /* @kind color */
+  --primario-darken-3: rgb(0,38,115); /* @kind color */
+  --primario-darken-4-2: rgb(0,19,90); /* @kind color */
+  --primario-darken-4: rgb(0,19,90); /* @kind color */
+  --primario-lighten-1-2: rgb(66,130,224); /* @kind color */
+  --primario-lighten-1: rgb(66,130,224); /* @kind color */
+  --primario-lighten-2-2: rgb(100,156,253); /* @kind color */
+  --primario-lighten-2: rgb(100,156,253); /* @kind color */
+  --primario-lighten-3-2: rgb(131,182,255); /* @kind color */
+  --primario-lighten-3: rgb(131,182,255); /* @kind color */
+  --primario-lighten-4-2: rgb(161,210,255); /* @kind color */
+  --primario-lighten-4: rgb(161,210,255); /* @kind color */
+  --primario-lighten-5-2: rgb(191,238,255); /* @kind color */
+  --primario-lighten-5: rgb(191,238,255); /* @kind color */
+  --secundario-base-2: rgb(207,225,243); /* @kind color */
+  --secundario-base: rgb(207,225,243); /* @kind color */
+  --secundario-darken-1-2: rgb(179,197,215); /* @kind color */
+  --secundario-darken-1: rgb(179,197,215); /* @kind color */
+  --secundario-darken-2-2: rgb(152,170,187); /* @kind color */
+  --secundario-darken-2: rgb(152,170,187); /* @kind color */
+  --secundario-darken-3-2: rgb(126,143,160); /* @kind color */
+  --secundario-darken-3: rgb(126,143,160); /* @kind color */
+  --secundario-lighten-1-2: rgb(235,254,255); /* @kind color */
+  --secundario-lighten-1: rgb(235,254,255); /* @kind color */
+  --size-l: 36;
+  --size-m: 24;
+  --size-s: 16;
+  --size-xl: 48;
+  --size-xs: 8;
+  --size-xxl-2: 64;
+  --size-xxl: 64;
+  --size-xxs: 4;
+  --spacing-l-2: 36;
+  --spacing-l: 36;
+  --spacing-m-2: 24;
+  --spacing-m: 24;
+  --spacing-s-2: 16;
+  --spacing-s: 16;
+  --spacing-xl-2: 48;
+  --spacing-xl: 48;
+  --spacing-xs-2: 8;
+  --spacing-xs: 8;
+  --spacing-xxl-2: 62;
+  --spacing-xxl: 62;
+  --spacing-xxs-2: 4;
+  --spacing-xxs: 4;
+  --textcu: "ClaveÚnica"; /* @kind other */
+  --visualizaci-ndata-cualitativa-graph-01: rgb(250,77,86); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-02: rgb(105,41,196); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-03: rgb(25,128,56); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-04: rgb(0,157,154); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-05: rgb(0,0,112); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-06: rgb(211,53,79); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-07: rgb(250,226,80); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-08: rgb(201,238,99); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-09: rgb(97,178,88); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-10: rgb(112,209,240); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-11: rgb(74,98,209); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-12: rgb(165,110,255); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-13: rgb(221,69,223); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-14: rgb(241,192,211); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-15: rgb(249,217,182); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-16: rgb(254,250,205); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-17: rgb(189,253,200); /* @kind color */
+  --visualizaci-ndata-cualitativa-graph-18: rgb(215,191,250); /* @kind color */
+  --visualizaci-ndata-cualitativa-grupofijo-graph-01: rgb(0,0,112); /* @kind color */
+  --visualizaci-ndata-cualitativa-grupofijo-graph-02: rgb(105,41,196); /* @kind color */
+  --visualizaci-ndata-cualitativa-grupofijo-graph-03: rgb(0,157,154); /* @kind color */
+  --visualizaci-ndata-cualitativa-grupofijo-graph-04: rgb(215,191,250); /* @kind color */
+  --visualizaci-ndata-cualitativa-secuencial-graph-01: rgb(0,17,65); /* @kind color */
+  --visualizaci-ndata-cualitativa-secuencial-graph-02: rgb(0,29,108); /* @kind color */
+  --visualizaci-ndata-cualitativa-secuencial-graph-03: rgb(0,45,156); /* @kind color */
+  --visualizaci-ndata-cualitativa-secuencial-graph-04: rgb(0,67,206); /* @kind color */
+  --visualizaci-ndata-cualitativa-secuencial-graph-05: rgb(15,98,254); /* @kind color */
+  --visualizaci-ndata-cualitativa-secuencial-graph-06: rgb(69,137,255); /* @kind color */
+  --visualizaci-ndata-cualitativa-secuencial-graph-07: rgb(120,169,255); /* @kind color */
+  --visualizaci-ndata-cualitativa-secuencial-graph-08: rgb(166,200,255); /* @kind color */
+  --visualizaci-ndata-cualitativa-secuencial-graph-09: rgb(208,226,255); /* @kind color */
+  --visualizaci-ndata-cualitativa-secuencial-graph-10: rgb(237,245,255); /* @kind color */
+  --visualizaci-ndata-divergente-graph-01: rgb(41,64,144); /* @kind color */
+  --visualizaci-ndata-divergente-graph-02: rgb(58,110,174); /* @kind color */
+  --visualizaci-ndata-divergente-graph-03: rgb(93,155,199); /* @kind color */
+  --visualizaci-ndata-divergente-graph-04: rgb(136,195,220); /* @kind color */
+  --visualizaci-ndata-divergente-graph-05: rgb(185,225,238); /* @kind color */
+  --visualizaci-ndata-divergente-graph-06: rgb(232,234,197); /* @kind color */
+  --visualizaci-ndata-divergente-graph-07: rgb(255,213,129); /* @kind color */
+  --visualizaci-ndata-divergente-graph-08: rgb(255,170,92); /* @kind color */
+  --visualizaci-ndata-divergente-graph-09: rgb(249,113,69); /* @kind color */
+  --visualizaci-ndata-divergente-graph-10: rgb(220,45,42); /* @kind color */
+  --visualizaci-ndata-divergente-graph-11: rgb(157,0,36); /* @kind color */
+}
+
+:root[data-mode="highcontrast"] {
+  --background-button: var(--contrast-base); /* @kind color */
+  --focus-button: var(--contrast-light); /* @kind color */
+  --icon-text-button: var(--blanco-base); /* @kind color */
+}
+
+:root[data-mode="iniciar-sesi-n"] {
+  --textcu: "Iniciar sesión"; /* @kind other */
+}
+
+:root[data-mode="iniciar"] {
+  --textcu: "Iniciar"; /* @kind other */
+}
+
+:root[data-theme="dark"], .dark {
+  --color-button-color-bk-button-default: var(--contrast-base); /* @kind color */
+  --color-button-color-bk-button-hover: var(--primario-darken-2-2); /* @kind color */
+  --color-button-color-text-button-default: var(--blanco-base-2); /* @kind color */
+  --color-text-color-text-link: var(--contrast-light); /* @kind color */
+  --color-text-color-text: var(--blanco-base-2); /* @kind color */
+}
