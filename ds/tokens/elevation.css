@@ -1,0 +1,19 @@
+/* Elevation & shape. Elevation-01 is transcribed verbatim from the kit's Efectos frame;
+   02-05 extend it on the same two-layer ambient+key pattern (see readme.md > Visual foundations). */
+:root{
+  --elevation-00:none; /* @kind shadow */
+  --elevation-01:0px 0.471px 1.414px 0.471px rgba(0,0,0,0.15), 0px 0.471px 0.943px 0px rgba(0,0,0,0.3);
+  --elevation-02:0px 1px 3px 1px rgba(0,0,0,0.15), 0px 1px 2px 0px rgba(0,0,0,0.3);
+  --elevation-03:0px 4px 8px 3px rgba(0,0,0,0.15), 0px 1px 3px 0px rgba(0,0,0,0.3);
+  --elevation-04:0px 6px 10px 4px rgba(0,0,0,0.15), 0px 2px 3px 0px rgba(0,0,0,0.3);
+  --elevation-05:0px 8px 12px 6px rgba(0,0,0,0.15), 0px 4px 4px 0px rgba(0,0,0,0.3);
+  --border-hairline:inset 0 0 0 1px rgb(230,230,230); /* @kind shadow */
+
+  --radius-0:0px;--radius-s:4px;--radius-m:8px;--radius-l:16px;--radius-xl:24px;--radius-pill:999px;
+
+  --focus-ring:0 0 0 3px rgb(255,190,92);
+  --duration-fast:120ms; /* @kind other */
+  --duration-base:200ms; /* @kind other */
+  --duration-slow:320ms; /* @kind other */
+  --ease-standard:cubic-bezier(0.4,0,0.2,1); /* @kind other */
+}
