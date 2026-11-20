@@ -1,0 +1,21 @@
+/* Colores institucionales del isologo — Manual de Normas Gráficas del Gobierno de Chile
+   (Abril 2026), pp. 34-36. VALORES BLOQUEADOS: no alterar, no degradar, no aplicar
+   transparencias ni efectos. Uso exclusivo del isologo, la banda identificadora y sus
+   equivalencias impresas. NO son tokens de interfaz: para producto usar --primario-* / --accent-*. */
+:root{
+  /* PANTONE 293 C — CMYK 100/55/0/0 — RGB 15/105/180 */
+  --isologo-azul:#0f69b4;
+  /* PANTONE 185 C — CMYK 0/90/75/0 — RGB 235/60/70 */
+  --isologo-rojo:#eb3c46;
+  /* Versión en escala de grises (PANTONE Black 65% / 85%) */
+  --isologo-gris-65:rgb(120,120,120);
+  --isologo-gris-85:rgb(77,77,77);
+  /* Versión pluma: un solo color plano, sobre fondos no institucionales */
+  --isologo-pluma:#000000;
+  --isologo-pluma-inversa:#ffffff;
+  /* Geometría normativa: el alto del isologo se divide en 20 módulos "a" */
+  --isologo-modulo:calc(var(--isologo-alto, 60px) / 20);
+  --isologo-resguardo:var(--isologo-modulo);
+  /* banda identificadora: 20a de ancho × 2a de alto */
+  --isologo-banda-ratio:10; /* @kind other */
+}
